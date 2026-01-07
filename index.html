@@ -148,10 +148,7 @@
             const data = snap.val() || {};
             finishedPrizes = data.finishedPrizes || [];
             historyData = data.historyData || [];
-            
-            // Nếu Firebase trả về đã có giải, khóa mode ngay (phòng trường hợp F5 trình duyệt)
             if (finishedPrizes.length > 0) modeLocked = true;
-            
             document.getElementById('historyList').innerHTML = historyData.map(item => 
                 `<div class="history-item"><span style="color:var(--vj-red)">VJC ${item.code}</span> <span>${item.name}</span></div>`
             ).join('');
@@ -161,11 +158,8 @@
         function setPrize(lv, btn) {
             if (isSpinning || !btn.classList.contains('enabled')) return;
             
-            // TRIGGER: Khi nhấn chọn Giải Ba lần đầu, khóa mode vĩnh viễn
-            if (lv === 3 && !modeLocked) {
-                modeLocked = true;
-                console.log("Mode đã bị khóa tại: " + (isRigged ? "Dàn xếp" : "Diễn"));
-            }
+            // Trigger lock mode khi nhấn giải 3
+            if (lv === 3 && !modeLocked) modeLocked = true;
 
             if (currentPrize === lv) {
                 currentPrize = 0;
@@ -175,15 +169,17 @@
                 currentPrize = lv;
                 document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                document.getElementById('status').innerText = "ĐÃ CHỌN " + (lv==1?'GIẢI NHẤT':lv==2?'GIẢI NHÌ':'GIẢI BA');
+                // Hiển thị đang chờ quay giải...
+                document.getElementById('status').innerText = "SẴN SÀNG QUAY " + (lv==1?'GIẢI NHẤT':lv==2?'GIẢI NHÌ':'GIẢI BA');
             }
             updateUI();
         }
 
         function updateUI() {
             const b1 = document.getElementById('btn-1'), b2 = document.getElementById('btn-2'), b3 = document.getElementById('btn-3'), s = document.getElementById('spinBtn');
+            const st = document.getElementById('status');
+
             [b1, b2, b3].forEach(b => b.classList.remove('enabled', 'finished'));
-            
             if (finishedPrizes.includes(3)) b3.classList.add('finished');
             else b3.classList.add('enabled');
             if (finishedPrizes.includes(2)) b2.classList.add('finished');
@@ -192,7 +188,9 @@
             else if (finishedPrizes.includes(2)) b1.classList.add('enabled');
 
             if (finishedPrizes.includes(1)) {
-                s.disabled = true; s.innerText = "KẾT THÚC";
+                s.disabled = true; 
+                s.innerText = "KẾT THÚC";
+                st.innerText = "CHÚC MỪNG GIẢI NHẤT!";
             } else {
                 s.disabled = false;
                 s.innerText = "QUAY NGAY";
@@ -203,9 +201,16 @@
         function spin() {
             if (isSpinning) return;
             isSpinning = true;
-            document.getElementById('status').innerText = "ĐANG QUAY...";
-            document.getElementById('spinBtn').disabled = true;
             
+            const st = document.getElementById('status');
+            // Cập nhật text trạng thái khi nhấn nút quay
+            if (currentPrize === 0) {
+                st.innerText = "ĐANG QUAY...";
+            } else {
+                st.innerText = "ĐANG QUAY " + (currentPrize==1?'GIẢI NHẤT':currentPrize==2?'GIẢI NHÌ':'GIẢI BA') + "...";
+            }
+
+            document.getElementById('spinBtn').disabled = true;
             const cols = document.querySelectorAll('.digit-column');
             cols.forEach(c => { c.style.transition = 'none'; c.style.transform = 'translateY(0)'; });
 
@@ -222,10 +227,15 @@
                 setTimeout(() => {
                     if (currentPrize !== 0) {
                         confetti({ particleCount: 150, spread: 70, colors: ['#e31a22', '#ffed00'] });
-                        historyData.unshift({ code: result, name: currentPrize==1?'Giải Nhất':currentPrize==2?'Giải Nhì':'Giải Ba' });
+                        let pName = currentPrize==1?'Giải Nhất':currentPrize==2?'Giải Nhì':'Giải Ba';
+                        historyData.unshift({ code: result, name: pName });
                         finishedPrizes.push(currentPrize);
                         db.ref('luckyroll_vjc').set({ historyData, finishedPrizes });
+                        
+                        st.innerText = "CHÚC MỪNG " + pName.toUpperCase() + "!";
                         currentPrize = 0;
+                    } else {
+                        st.innerText = "KẾT QUẢ QUAY THỬ: VJC " + result;
                     }
                     isSpinning = false;
                     document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
@@ -248,8 +258,7 @@
         }
 
         window.addEventListener('keydown', e => { 
-            if (e.key === "Control") {
-                if (modeLocked) return; // Không cho phép đổi mode nếu đã lock
+            if (e.key === "Control" && !modeLocked) {
                 isRigged = !isRigged;
                 updateUI();
             }
