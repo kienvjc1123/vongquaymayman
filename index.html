@@ -13,15 +13,9 @@
 
     <style>
         :root { --vj-red: #e31a22; --vj-yellow: #ffed00; --vj-dark-red: #b31217; }
-        
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        /* Font mặc định là Montserrat */
-        body, input, button, div { font-family: 'Montserrat', sans-serif; }
-
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Montserrat', sans-serif; }
         body { background: #f0f2f5; margin: 0; min-height: 100vh; overflow-x: hidden; }
 
-        /* KIỂU CHỮ ĐẸP CHO SLOGAN */
         .vj-slogan-style { 
             font-family: 'Pacifico', cursive !important; 
             color: var(--vj-red); 
@@ -31,37 +25,37 @@
 
         /* Plane Layer */
         #plane-layer { position: fixed; inset: 0; z-index: 2500; pointer-events: none; display: none; background: white; }
-        .vj-plane-img { 
-            position: absolute; top: 50%; left: -500px; width: 450px; 
-            transform: translateY(-50%); 
-            transition: left 1.2s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
+        .vj-plane-img { position: absolute; top: 50%; left: -500px; width: 450px; transform: translateY(-50%); transition: left 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* Login Screen */
+        /* Login */
         #login-overlay { position: fixed; inset: 0; background: var(--vj-red); display: flex; align-items: center; justify-content: center; z-index: 2000; }
         .login-box { background: white; padding: 40px 30px; border-radius: 30px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
-        .login-box img { width: 170px; margin-bottom: 5px; }
-        .login-box h2 { font-size: 28px; margin: 0 0 25px; } /* Slogan ở login */
-
-        .login-box input { width: 100%; padding: 16px; border: 2px solid #f0f0f0; border-radius: 15px; margin-bottom: 20px; text-align: center; font-size: 16px; font-weight: 600; outline: none; transition: 0.3s; }
-        .login-box input:focus { border-color: var(--vj-red); }
+        .login-box h2 { font-size: 28px; margin: 10px 0 25px; }
+        .login-box input { width: 100%; padding: 16px; border: 2px solid #f0f0f0; border-radius: 15px; margin-bottom: 20px; text-align: center; font-size: 16px; font-weight: 600; outline: none; }
         .login-box button { width: 100%; padding: 16px; background: var(--vj-red); color: white; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; font-size: 16px; box-shadow: 0 5px 0 var(--vj-dark-red); }
 
         /* Main UI */
         #main-content { display: none; opacity: 0; transition: 0.5s; }
         header { background: white; padding: 15px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .header-slogan { font-size: 26px; margin: 0; }
-
         .container { max-width: 500px; margin: auto; padding: 20px; text-align: center; }
+
+        /* PRIZE BUTTONS LOGIC */
         .prize-selector { display: flex; gap: 10px; margin: 20px 0; }
-        .prize-btn { flex: 1; padding: 12px 5px; border: 1px solid #eee; background: white; border-radius: 12px; font-weight: 700; color: #666; font-size: 11px; cursor: pointer; }
-        .prize-btn.active { background: var(--vj-red) !important; color: white !important; transform: scale(1.05); }
+        .prize-btn { 
+            flex: 1; padding: 12px 5px; border: 1px solid #eee; background: #eee; 
+            border-radius: 12px; font-weight: 700; color: #999; font-size: 11px; 
+            cursor: not-allowed; transition: 0.3s; opacity: 0.5;
+        }
+        /* Khi nút được kích hoạt (đến lượt quay) */
+        .prize-btn.enabled { background: white; color: var(--vj-red); border: 1.5px solid var(--vj-red); cursor: pointer; opacity: 1; }
+        /* Khi nút đang được chọn */
+        .prize-btn.active { background: var(--vj-red) !important; color: white !important; transform: scale(1.05); border: 1.5px solid var(--vj-red); opacity: 1; }
+        /* Khi giải đã quay xong */
+        .prize-btn.finished { background: #d4edda; color: #155724; border: 1.5px solid #c3e6cb; cursor: not-allowed; opacity: 0.6; }
 
         .machine-card { background: white; border-radius: 30px; padding: 40px 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .slot-container { display: flex; align-items: center; justify-content: center; background: #1a1a1a; border-radius: 20px; height: 130px; }
         .vjc-label { color: var(--vj-yellow); font-size: 28px; font-weight: 900; margin-right: 12px; }
-        
-        /* Font số quay vẫn giữ Courier New cho giống máy số */
         .number-window { height: 90px; display: flex; overflow: hidden; font-family: 'Courier New', monospace !important; font-size: 55px; color: white; line-height: 90px; }
         .digit-column { width: 42px; display: flex; flex-direction: column; text-align: center; }
         .digit-column span { height: 90px; display: flex; align-items: center; justify-content: center; }
@@ -71,19 +65,18 @@
 
         .history-card { background: white; border-radius: 20px; margin-top: 25px; padding: 20px; text-align: left; }
         .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-weight: 700; }
-        
-        .btn-reset-link { background: none; border: none; color: #ccc; font-size: 10px; text-decoration: underline; cursor: pointer; margin-top: 20px; display: block; width: 100%; }
+        .btn-reset-link { background: none; border: none; color: #ccc; font-size: 10px; text-decoration: underline; cursor: pointer; margin-top: 40px; display: block; width: 100%; }
     </style>
 </head>
 <body>
 
     <div id="plane-layer">
-        <img src="DÁN_LINK_ẢNH_CỦA_BẠN_VÀO_ĐÂY" class="vj-plane-img" id="plane-asset">
+        <img src="https://raw.githubusercontent.com/kienvjc1123/vjc-asset/main/plane.png" class="vj-plane-img" id="plane-asset">
     </div>
 
     <div id="login-overlay">
         <div class="login-box">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/VietJet_Air_logo.svg">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/VietJet_Air_logo.svg" style="width:170px">
             <h2 class="vj-slogan-style">Bay là thích ngay!</h2>
             <input type="password" id="pass" placeholder="Mã kích hoạt hệ thống" autofocus>
             <button onclick="login()">ĐĂNG NHẬP</button>
@@ -92,12 +85,12 @@
     </div>
 
     <div id="main-content">
-        <header><h1 class="header-slogan vj-slogan-style">Bay là thích ngay!</h1></header>
+        <header><h1 class="vj-slogan-style" style="font-size: 26px; margin: 0;">Bay là thích ngay!</h1></header>
         <div class="container">
             <div class="prize-selector">
                 <button class="prize-btn" id="btn-3" onclick="setPrize(3, this)">GIẢI BA</button>
-                <button class="prize-btn" id="btn-2" onclick="setPrize(2, this)" disabled>GIẢI NHÌ</button>
-                <button class="prize-btn" id="btn-1" onclick="setPrize(1, this)" disabled>GIẢI NHẤT</button>
+                <button class="prize-btn" id="btn-2" onclick="setPrize(2, this)">GIẢI NHÌ</button>
+                <button class="prize-btn" id="btn-1" onclick="setPrize(1, this)">GIẢI NHẤT</button>
             </div>
             
             <div class="machine-card">
@@ -114,13 +107,11 @@
                 <div id="historyList"></div>
             </div>
             
-            <button class="btn-reset-link" style="margin-top: 40px;" onclick="confirmReset()">RESET DỮ LIỆU ĐÁM MÂY</button>
-            <p style="font-size: 9px; color: #ddd; margin-top: 10px;">© 2026 VIETJET AIR - INTERNAL USE ONLY</p>
+            <button class="btn-reset-link" onclick="confirmReset()">RESET DỮ LIỆU ĐÁM MÂY</button>
         </div>
     </div>
 
     <script>
-        // CẤU HÌNH FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyDIgMehS16uI5ZskLWs1P5tUZT07sf3lEs",
             authDomain: "luckyroll1123.firebaseapp.com",
@@ -134,9 +125,8 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let isRigged = false, currentPrize = 0, finishedPrizes = [], historyData = [], isSpinning = false, gameStarted = false;
+        let isRigged = false, currentPrize = 0, finishedPrizes = [], historyData = [], isSpinning = false;
 
-        // Tạo các cột số
         const win = document.getElementById('window');
         for(let i=0; i<5; i++) {
             let col = document.createElement('div');
@@ -159,7 +149,7 @@
                         setTimeout(() => { document.getElementById('main-content').style.opacity = '1'; }, 50);
                     }, 900);
                 }, 100);
-            } else { alert("Sai mã kích hoạt!"); }
+            } else { alert("Sai mã!"); }
         }
 
         db.ref('luckyroll_vjc').on('value', snap => {
@@ -173,8 +163,10 @@
         });
 
         function setPrize(lv, btn) {
-            if (isSpinning || finishedPrizes.includes(lv)) return;
-            gameStarted = true; currentPrize = lv;
+            // Chỉ cho phép chọn nếu nút đang ở trạng thái 'enabled'
+            if (isSpinning || !btn.classList.contains('enabled')) return;
+            
+            currentPrize = lv;
             document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('status').innerText = "Đã chọn giải " + (lv==1?'Nhất':lv==2?'Nhì':'Ba');
@@ -184,19 +176,33 @@
         function updateUI() {
             const b1 = document.getElementById('btn-1'), b2 = document.getElementById('btn-2'), b3 = document.getElementById('btn-3'), s = document.getElementById('spinBtn');
             const st = document.getElementById('status');
-            
+
+            // Reset trạng thái các nút giải thưởng
+            [b1, b2, b3].forEach(b => b.classList.remove('enabled', 'finished'));
+
+            // 1. Kiểm tra Giải Ba
+            if (finishedPrizes.includes(3)) b3.classList.add('finished');
+            else b3.classList.add('enabled');
+
+            // 2. Kiểm tra Giải Nhì (Chỉ mở khi xong giải Ba)
+            if (finishedPrizes.includes(2)) b2.classList.add('finished');
+            else if (finishedPrizes.includes(3)) b2.classList.add('enabled');
+
+            // 3. Kiểm tra Giải Nhất (Chỉ mở khi xong giải Nhì)
+            if (finishedPrizes.includes(1)) b1.classList.add('finished');
+            else if (finishedPrizes.includes(2)) b1.classList.add('enabled');
+
+            // Cập nhật text Nút Quay
             if (finishedPrizes.includes(1)) {
                 s.disabled = true; s.innerText = "KẾT THÚC CHƯƠNG TRÌNH";
-                st.innerText = "Chúc mừng trúng thưởng!"; return;
+                st.innerText = "Chúc mừng trúng thưởng!";
+            } else if (currentPrize === 0) {
+                s.disabled = true;
+                st.innerText = finishedPrizes.length === 0 ? "Chọn Giải ba để bắt đầu" : "Chọn giải tiếp theo để quay tiếp";
+            } else {
+                s.disabled = false;
+                s.innerText = "QUAY NGAY";
             }
-
-            if (currentPrize === 0 && (finishedPrizes.length > 0)) {
-                s.disabled = true; st.innerText = "Chọn giải tiếp theo để quay tiếp";
-            } else { s.disabled = false; }
-
-            b3.disabled = finishedPrizes.includes(3);
-            b2.disabled = !finishedPrizes.includes(3) || finishedPrizes.includes(2);
-            b1.disabled = !finishedPrizes.includes(2) || finishedPrizes.includes(1);
         }
 
         function spin() {
@@ -233,14 +239,11 @@
         }
 
         function confirmReset() {
-            if (confirm("Xác nhận xóa sạch dữ liệu và khởi tạo lại?")) {
-                const p = prompt("Mật khẩu xác thực:");
-                if (p === "vjc2026") {
-                    db.ref('luckyroll_vjc').remove().then(() => window.location.reload());
-                }
+            if (confirm("Reset toàn bộ?")) {
+                const p = prompt("Mật khẩu:");
+                if (p === "vjc2026") db.ref('luckyroll_vjc').remove().then(() => window.location.reload());
             }
         }
-        
         window.addEventListener('keydown', e => { if (e.key === "Control") isRigged = !isRigged; });
     </script>
 </body>
