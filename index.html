@@ -2,19 +2,22 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>⚡ TRANG CHỦ QUAY SỐ ⚡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LuckyRoll - Hệ Thống Quay Số</title>
     <style>
         body { background: #0f0f0f; color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; }
-        .machine { background: linear-gradient(180deg, #444, #111); border: 8px solid #ffd700; border-radius: 20px; display: inline-block; padding: 40px; margin-top: 50px; box-shadow: 0 0 50px rgba(255,215,0,0.2); }
-        .slot { font-size: 120px; background: #000; padding: 20px 60px; border-radius: 10px; color: #00ff00; text-shadow: 0 0 20px #00ff00; font-family: 'Courier New', monospace; }
-        button { background: #ff0000; color: white; border: none; padding: 20px 50px; font-size: 24px; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 30px; box-shadow: 0 5px 0 #8b0000; }
+        .machine { background: linear-gradient(180deg, #444, #111); border: 8px solid #ffd700; border-radius: 20px; display: inline-block; padding: 40px; margin-top: 50px; box-shadow: 0 0 50px rgba(255,215,0,0.4); }
+        /* Tăng kích thước ô số để chứa 5 chữ số */
+        .slot { font-size: 100px; background: #000; padding: 20px 40px; border-radius: 10px; color: #00ff00; text-shadow: 0 0 20px #00ff00; font-family: 'Courier New', monospace; letter-spacing: 5px; }
+        button { background: #ff0000; color: white; border: none; padding: 20px 50px; font-size: 24px; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 30px; box-shadow: 0 5px 0 #8b0000; transition: 0.1s; }
         button:active { transform: translateY(5px); box-shadow: none; }
+        button:disabled { background: #555; box-shadow: none; cursor: not-allowed; }
     </style>
 </head>
 <body>
     <div class="machine">
-        <h2>HỆ THỐNG QUAY SỐ TỰ ĐỘNG</h2>
-        <div class="slot" id="box">00</div><br>
+        <h2 style="letter-spacing: 2px;">HỆ THỐNG QUAY SỐ TỰ ĐỘNG</h2>
+        <div class="slot" id="box">00000</div><br>
         <button id="spinBtn">QUAY (SPIN)</button>
     </div>
 
@@ -23,16 +26,36 @@
             let box = document.getElementById('box');
             let btn = this;
             btn.disabled = true;
+            
             let count = 0;
-            let speed = 50;
+            let totalSpins = 50; // Tăng số lần nhảy số để nhìn cho kịch tính
+            let speed = 20;      // Tốc độ cực nhanh (20ms mỗi lần đổi số)
+            
+            // Danh sách số chỉ định
+            const specialNumbers = ["12370", "06370"]; // Thêm số 0 ở trước để đủ 5 chữ số nếu cần
             
             let run = setInterval(() => {
-                box.innerText = Math.floor(Math.random() * 90) + 10;
+                // Hiển thị số ngẫu nhiên 5 chữ số từ 01000 - 99999
+                let randomVal = Math.floor(Math.random() * 90000) + 10000;
+                box.innerText = randomVal;
+                
                 count++;
-                if (count > 30) {
+                
+                if (count > totalSpins) {
                     clearInterval(run);
-                    // MẸO: Nhấn giữ phím "Ctrl" khi bấm nút để ra số 68 (Lộc Phát)
-                    box.innerText = e.ctrlKey ? "68" : Math.floor(Math.random() * 90) + 10;
+                    
+                    // Logic kết quả:
+                    if (e.ctrlKey) {
+                        // Nếu giữ Ctrl: Chọn ngẫu nhiên 1 trong các số chỉ định
+                        const luckyIndex = Math.floor(Math.random() * specialNumbers.length);
+                        box.innerText = specialNumbers[luckyIndex];
+                        box.style.color = "#ffff00"; // Đổi màu vàng cho rực rỡ khi trúng
+                    } else {
+                        // Nếu không giữ Ctrl: Ra số ngẫu nhiên bất kỳ (người thường quay)
+                        box.innerText = Math.floor(Math.random() * 90000) + 10000;
+                        box.style.color = "#00ff00";
+                    }
+                    
                     btn.disabled = false;
                 }
             }, speed);
