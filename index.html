@@ -9,13 +9,13 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Pacifico&display=swap');
         :root { --vj-red: #e31a22; --vj-yellow: #ffed00; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: #f0f2f5; margin: 0; font-family: 'Montserrat', sans-serif; min-height: 100vh; padding-bottom: 50px; user-select: none; }
+        body { background: #f0f2f5; margin: 0; font-family: 'Montserrat', sans-serif; min-height: 100vh; padding-bottom: 50px; user-select: none; overflow-x: hidden; }
 
         /* Login */
         #login-overlay { position: fixed; inset: 0; background: var(--vj-red); display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .login-box { background: white; padding: 30px; border-radius: 24px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .login-box h2 { font-family: 'Pacifico', cursive; color: var(--vj-red); margin: 0 0 20px; }
-        .login-box input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 12px; margin-bottom: 20px; outline: none; }
+        .login-box h2 { font-family: 'Pacifico', cursive; color: var(--vj-red); margin: 0 0 20px; font-size: 28px; }
+        .login-box input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 12px; margin-bottom: 20px; outline: none; font-size: 16px; }
         .login-box button { width: 100%; padding: 15px; background: var(--vj-red); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
 
         #main-content { display: none; }
@@ -24,18 +24,21 @@
 
         .container { max-width: 500px; margin: auto; padding: 20px; text-align: center; }
         .prize-selector { display: flex; gap: 10px; margin: 20px 0; }
-        .prize-btn { flex: 1; padding: 12px 5px; border: 1px solid #eee; background: white; border-radius: 12px; font-weight: 900; color: #666; cursor: pointer; transition: 0.2s; font-size: 11px; }
-        .prize-btn.active { background: var(--vj-red); color: white; border-color: var(--vj-red); }
+        .prize-btn { flex: 1; padding: 12px 5px; border: 1px solid #eee; background: white; border-radius: 12px; font-weight: 900; color: #666; cursor: pointer; transition: 0.2s; font-size: 11px; outline: none; }
+        .prize-btn.active { background: var(--vj-red); color: white; border-color: var(--vj-red); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(227,26,34,0.2); }
         .prize-btn:disabled { opacity: 0.5; cursor: not-allowed; background: #eee; color: #aaa; border-color: #ddd; }
 
-        .machine-card { background: white; border-radius: 30px; padding: 30px 15px; box-shadow: 0 30px 60px rgba(0,0,0,0.1); }
-        .slot-container { display: flex; align-items: center; justify-content: center; background: #1a1a1a; padding: 20px 10px; border-radius: 20px; box-shadow: inset 0 0 30px #000; overflow: hidden; }
-        .vjc-text { color: var(--vj-yellow); font-size: clamp(25px, 8vw, 40px); font-weight: 900; margin-right: 10px; }
-        .number-window { height: 70px; display: flex; overflow: hidden; font-family: 'monospace'; font-size: clamp(40px, 12vw, 60px); color: white; }
-        .digit-column { width: clamp(30px, 9vw, 45px); display: flex; flex-direction: column; transition: transform 2.5s cubic-bezier(0.1, 0, 0.1, 1); }
-        .digit-column span { height: 70px; display: flex; align-items: center; justify-content: center; }
+        /* Sửa lỗi hiển thị số Laptop/Mobile */
+        .machine-card { background: white; border-radius: 30px; padding: 40px 15px; box-shadow: 0 30px 60px rgba(0,0,0,0.1); position: relative; }
+        .slot-container { display: flex; align-items: center; justify-content: center; background: #1a1a1a; padding: 30px 10px; border-radius: 20px; box-shadow: inset 0 0 30px #000; overflow: hidden; }
+        .vjc-text { color: var(--vj-yellow); font-size: clamp(28px, 8vw, 42px); font-weight: 900; margin-right: 12px; }
+        
+        .number-window { height: 80px; display: flex; overflow: hidden; font-family: 'Courier New', monospace; font-size: clamp(45px, 12vw, 65px); color: white; line-height: 80px; }
+        .digit-column { width: clamp(35px, 9vw, 50px); display: flex; flex-direction: column; transition: transform 2.5s cubic-bezier(0.1, 0, 0.1, 1); text-align: center; }
+        .digit-column span { height: 80px; min-height: 80px; display: flex; align-items: center; justify-content: center; }
 
-        #spinBtn { width: 100%; max-width: 280px; padding: 20px; margin-top: 30px; background: linear-gradient(to bottom, #ff4d4d, var(--vj-red)); color: white; border: none; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 0 #b31217; }
+        #spinBtn { width: 100%; max-width: 280px; padding: 20px; margin-top: 30px; background: linear-gradient(to bottom, #ff4d4d, var(--vj-red)); color: white; border: none; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 0 #b31217; outline: none; }
+        #spinBtn:active { transform: translateY(4px); box-shadow: 0 4px 0 #b31217; }
         #spinBtn:disabled { background: #ccc; box-shadow: none; transform: translateY(4px); }
 
         .history-card { background: white; border-radius: 20px; margin-top: 30px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: left; }
@@ -50,7 +53,7 @@
     <div id="login-overlay">
         <div class="login-box">
             <h2>Bay là thích ngay!</h2>
-            <input type="password" id="pass" placeholder="Mật khẩu hệ thống...">
+            <input type="password" id="pass" placeholder="Mật khẩu hệ thống..." autofocus>
             <button onclick="login()">ĐĂNG NHẬP</button>
         </div>
     </div>
@@ -65,15 +68,15 @@
             </div>
 
             <div class="machine-card">
-                <div id="status" style="color: #888; margin-bottom: 15px; font-size: 14px; font-weight: bold;">CHẾ ĐỘ QUAY TỰ DO</div>
+                <div id="status" style="color: var(--vj-red); margin-bottom: 15px; font-size: 15px; font-weight: 900; height: 20px; text-transform: uppercase;"></div>
                 <div class="slot-container">
                     <div class="vjc-text">VJC</div>
                     <div class="number-window" id="window">
-                        <div class="digit-column" id="col1"></div>
-                        <div class="digit-column" id="col2"></div>
-                        <div class="digit-column" id="col3"></div>
-                        <div class="digit-column" id="col4"></div>
-                        <div class="digit-column" id="col5"></div>
+                        <div class="digit-column"></div>
+                        <div class="digit-column"></div>
+                        <div class="digit-column"></div>
+                        <div class="digit-column"></div>
+                        <div class="digit-column"></div>
                     </div>
                 </div>
                 <button id="spinBtn" onclick="spin()">QUAY NGAY</button>
@@ -89,7 +92,7 @@
     </div>
 
     <script>
-        // Chặn phím tắt F12, Inspect
+        // Chặn Inspect
         document.onkeydown = function(e) {
             if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false;
         };
@@ -99,9 +102,10 @@
         let currentBtn = null;
         const columns = document.querySelectorAll('.digit-column');
 
+        // Tạo số cuộn ổn định
         columns.forEach(col => {
             let content = '';
-            for(let i=0; i<40; i++) content += `<span>${i % 10}</span>`;
+            for(let i=0; i<50; i++) content += `<span>${i % 10}</span>`;
             col.innerHTML = content;
         });
 
@@ -123,13 +127,13 @@
             if(btn.classList.contains('active')) {
                 currentPrize = 0;
                 btn.classList.remove('active');
-                document.getElementById('status').innerText = "CHẾ ĐỘ QUAY TỰ DO";
+                document.getElementById('status').innerText = "";
             } else {
                 currentPrize = lv;
                 currentBtn = btn;
                 document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                document.getElementById('status').innerText = "SẴN SÀNG QUAY GIẢI " + (lv==1?'NHẤT':lv==2?'NHÌ':'BA');
+                document.getElementById('status').innerText = "ĐANG QUAY GIẢI " + (lv==1?'NHẤT':lv==2?'NHÌ':'BA');
             }
             columns.forEach(col => { col.style.transition = 'none'; col.style.transform = 'translateY(0)'; });
         }
@@ -139,26 +143,26 @@
             btn.disabled = true;
             
             let result = "";
-            // Mã hóa kết quả đơn giản để tránh đọc code
-            const _0x1 = ["06370", "12370", "17939"];
+            const targets = ["06370", "12370", "17939"];
             
             if (isRandomMode || currentPrize === 0) {
                 result = Math.floor(Math.random() * 90000 + 10000).toString();
             } else {
-                result = _0x1[currentPrize - 1];
+                result = targets[currentPrize - 1];
             }
 
             columns.forEach((col, idx) => {
                 const targetDigit = parseInt(result[idx]);
-                const move = (targetDigit + 20) * 70;
-                col.style.transition = `transform ${2 + idx*0.4}s cubic-bezier(0.1, 0, 0.1, 1)`;
+                const move = (targetDigit + 30) * 80; // Cuộn qua 30 vòng để mượt
+                col.style.transition = `transform ${2 + idx*0.3}s cubic-bezier(0.1, 0, 0.1, 1)`;
                 col.style.transform = `translateY(-${move}px)`;
             });
 
             setTimeout(() => {
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#e31a22', '#ffed00'] });
-                
+                // Chỉ bắn pháo hoa khi trúng giải thật
                 if (currentPrize !== 0) {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#e31a22', '#ffed00'] });
+                    
                     const list = document.getElementById('historyList');
                     const li = document.createElement('li');
                     li.className = 'history-item';
@@ -168,11 +172,11 @@
 
                     currentBtn.disabled = true;
                     currentBtn.classList.remove('active');
-                    document.getElementById('status').innerText = "ĐÃ HOÀN THÀNH GIẢI " + pName.toUpperCase();
+                    document.getElementById('status').innerText = "ĐÃ XONG " + pName.toUpperCase();
                     currentPrize = 0;
                 }
                 btn.disabled = false;
-            }, 4200);
+            }, 4000);
         }
     </script>
 </body>
