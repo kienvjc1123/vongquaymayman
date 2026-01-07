@@ -35,7 +35,7 @@
         .prize-selector { display: flex; gap: 10px; margin: 20px 0; }
         .prize-btn { flex: 1; padding: 12px 5px; border: 1px solid #eee; background: white; border-radius: 12px; font-weight: 900; color: #666; cursor: pointer; font-size: 11px; }
         .prize-btn.active { background: var(--vj-red) !important; color: white !important; }
-        .prize-btn:disabled { background: #ddd !important; color: #aaa !important; cursor: not-allowed; }
+        .prize-btn:disabled { background: #ddd !important; color: #aaa !important; cursor: not-allowed; border: 1px solid #ccc; }
 
         .machine-card { background: white; border-radius: 30px; padding: 40px 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .slot-container { display: flex; align-items: center; justify-content: center; background: #1a1a1a; border-radius: 20px; overflow: hidden; height: 130px; }
@@ -44,14 +44,13 @@
         .digit-column { width: 42px; display: flex; flex-direction: column; text-align: center; }
         .digit-column span { height: 90px; display: flex; align-items: center; justify-content: center; }
 
-        #spinBtn { width: 100%; max-width: 250px; padding: 18px; margin-top: 30px; background: var(--vj-red); color: white; border: none; border-radius: 50px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0 #b31217; }
-        #spinBtn:disabled { background: #666; box-shadow: none; transform: translateY(4px); color: #999; }
+        #spinBtn { width: 100%; max-width: 250px; padding: 18px; margin-top: 30px; background: var(--vj-red); color: white; border: none; border-radius: 50px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0 #b31217; outline: none; }
+        #spinBtn:disabled { background: #666 !important; box-shadow: none !important; transform: translateY(4px); color: #999; }
 
         .history-card { background: white; border-radius: 20px; margin-top: 25px; padding: 20px; text-align: left; }
         .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-weight: bold; }
         .history-item span:first-child { color: var(--vj-red); }
 
-        /* Popup */
         #reset-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 3000; }
         .reset-box { background: white; padding: 30px; border-radius: 24px; width: 300px; text-align: center; }
     </style>
@@ -61,7 +60,7 @@
     <div id="login-overlay">
         <div class="login-box">
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/VietJet_Air_logo.svg" style="width: 150px;">
-            <h2 style="font-size: 20px;">Hệ Thống Quay Số</h2>
+            <h2 style="font-size: 20px;">Hệ Thống Quay Số 2026</h2>
             <input type="password" id="pass" placeholder="Mã truy cập..." autofocus>
             <button onclick="login()">ĐĂNG NHẬP</button>
             <button class="btn-quick-reset" onclick="quickReset()">Khởi tạo lại dữ liệu (Reset Data)</button>
@@ -87,3 +86,164 @@
                     <div class="vjc-text">VJC</div>
                     <div class="number-window">
                         <div class="digit-column"></div><div class="digit-column"></div><div class="digit-column"></div><div class="digit-column"></div><div class="digit-column"></div>
+                    </div>
+                </div>
+                <button id="spinBtn" onclick="spin()">QUAY NGAY</button>
+            </div>
+
+            <div class="history-card">
+                <h3 style="color: var(--vj-red); font-size: 13px; margin: 0 0 10px;">DANH SÁCH TRÚNG THƯỞNG:</h3>
+                <div id="historyList"></div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <button onclick="openReset()" style="background: none; border: 1px solid #ccc; color: #bbb; padding: 10px; border-radius: 10px; font-size: 10px; cursor: pointer;">RESET TOÀN BỘ</button>
+            </div>
+            <p id="footer-text" style="margin-top: 15px; font-size: 10px; color: #ccc;">© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ</p>
+        </div>
+    </div>
+
+    <div id="reset-overlay">
+        <div class="reset-box">
+            <h3 style="color:var(--vj-red); margin-top:0;">XÓA DỮ LIỆU?</h3>
+            <p style="font-size:14px; color:#666;">Hành động này sẽ xóa sạch danh sách trúng thưởng.</p>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button style="flex:1; padding:12px; border:none; border-radius:10px;" onclick="closeReset()">HỦY</button>
+                <button style="flex:1; padding:12px; border:none; border-radius:10px; background:var(--vj-red); color:white;" onclick="confirmReset()">XÓA</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDIgMehS16uI5ZskLWs1P5tUZT07sf3lEs",
+            authDomain: "luckyroll1123.firebaseapp.com",
+            databaseURL: "https://luckyroll1123-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "luckyroll1123",
+            storageBucket: "luckyroll1123.firebasestorage.app",
+            messagingSenderId: "370017811408",
+            appId: "1:370017811408:web:0c9794a8c712a1b878d7d5",
+            measurementId: "G-5RXY2JEVY5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let isRigged = false; 
+        let currentPrize = 0;
+        let finishedPrizes = [];
+        let historyData = [];
+        let isSpinning = false;
+        let gameStarted = false; 
+
+        const cols = document.querySelectorAll('.digit-column');
+        cols.forEach(c => {
+            let h = '';
+            for(let i=0; i<60; i++) h += `<span>${i%10}</span>`;
+            c.innerHTML = h;
+        });
+
+        window.addEventListener('keydown', e => {
+            if (e.key === "Control" && !gameStarted) {
+                isRigged = !isRigged;
+                document.getElementById('footer-text').innerText = "© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ" + (isRigged ? "." : "");
+            }
+        });
+
+        function login() {
+            if (document.getElementById('pass').value === "vjc2026") {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('plane-transition').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('vj-plane').style.left = '120%';
+                    setTimeout(() => {
+                        document.getElementById('plane-transition').style.display = 'none';
+                        const main = document.getElementById('main-content');
+                        main.style.display = 'block';
+                        setTimeout(() => { main.style.opacity = '1'; }, 50);
+                    }, 1500);
+                }, 100);
+            } else { alert("Sai mật khẩu!"); }
+        }
+
+        function quickReset() {
+            const p = prompt("Nhập mật khẩu quản trị để Reset:");
+            if (p === "vjc2026") {
+                db.ref('luckyroll_vjc').remove().then(() => {
+                    alert("Đã dọn dẹp dữ liệu Cloud!");
+                    window.location.reload();
+                });
+            }
+        }
+
+        db.ref('luckyroll_vjc').on('value', snap => {
+            const data = snap.val() || {};
+            finishedPrizes = data.finishedPrizes || [];
+            historyData = data.historyData || [];
+            if (finishedPrizes.length > 0) gameStarted = true;
+            
+            document.getElementById('historyList').innerHTML = historyData.map(item => 
+                `<div class="history-item"><span>VJC ${item.code}</span> <span>${item.name}</span></div>`
+            ).join('');
+            
+            if (!isSpinning) updateUI();
+        });
+
+        function setPrize(lv, btn) {
+            if (isSpinning || finishedPrizes.includes(lv)) return;
+            gameStarted = true; 
+            currentPrize = lv;
+            document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('status').innerText = "QUAY THẬT: GIẢI " + (lv==1?'NHẤT':lv==2?'NHÌ':'BA');
+        }
+
+        function updateUI() {
+            const b1 = document.getElementById('btn-1'), b2 = document.getElementById('btn-2'), b3 = document.getElementById('btn-3'), s = document.getElementById('spinBtn');
+            b3.disabled = finishedPrizes.includes(3);
+            b2.disabled = !finishedPrizes.includes(3) || finishedPrizes.includes(2);
+            b1.disabled = !finishedPrizes.includes(2) || finishedPrizes.includes(1);
+            if (finishedPrizes.includes(1)) { 
+                s.disabled = true; 
+                s.innerText = "KẾT THÚC";
+                document.getElementById('status').innerText = "HOÀN THÀNH CHƯƠNG TRÌNH";
+            }
+        }
+
+        function spin() {
+            if (isSpinning) return;
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            cols.forEach(c => { c.style.transition = 'none'; c.style.transform = 'translateY(0)'; });
+
+            setTimeout(() => {
+                const targets = ["06370", "12370", "17939"];
+                let result = (currentPrize !== 0 && isRigged) ? targets[currentPrize-1] : Math.floor(Math.random()*90000+10000).toString();
+
+                cols.forEach((c, i) => {
+                    const dist = (parseInt(result[i]) + 40) * 90;
+                    c.style.transition = `transform ${2.5 + i*0.3}s cubic-bezier(0.1, 0, 0.1, 1)`;
+                    c.style.transform = `translateY(-${dist}px)`;
+                });
+
+                setTimeout(() => {
+                    if (currentPrize !== 0) {
+                        confetti({ particleCount: 150, spread: 70, colors: ['#e31a22', '#ffed00'] });
+                        const name = currentPrize==1?'Giải Nhất':currentPrize==2?'Giải Nhì':'Giải Ba';
+                        historyData.unshift({ code: result, name: name });
+                        finishedPrizes.push(currentPrize);
+                        db.ref('luckyroll_vjc').set({ historyData, finishedPrizes });
+                        currentPrize = 0;
+                    }
+                    isSpinning = false;
+                    document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
+                    updateUI();
+                }, 4500);
+            }, 50);
+        }
+
+        function openReset() { document.getElementById('reset-overlay').style.display = 'flex'; }
+        function closeReset() { document.getElementById('reset-overlay').style.display = 'none'; }
+        function confirmReset() { quickReset(); }
+    </script>
+</body>
+</html>
