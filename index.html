@@ -13,19 +13,16 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Pacifico&display=swap');
         :root { --vj-red: #e31a22; --vj-yellow: #ffed00; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: #f0f2f5; margin: 0; font-family: 'Montserrat', sans-serif; min-height: 100vh; user-select: none; overflow: hidden; }
+        body { background: #f0f2f5; margin: 0; font-family: 'Montserrat', sans-serif; min-height: 100vh; overflow-y: auto; overflow-x: hidden; padding-bottom: 50px; }
 
-        /* Login & Transition */
         #login-overlay { position: fixed; inset: 0; background: var(--vj-red); display: flex; align-items: center; justify-content: center; z-index: 2000; transition: 0.8s; }
         .login-box { background: white; padding: 30px; border-radius: 24px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
-        .login-box h2 { font-size: 22px; margin: 20px 0; color: #333; }
-        .login-box input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 12px; margin-bottom: 20px; outline: none; font-size: 16px; text-align: center; }
-        .login-box button { width: 100%; padding: 15px; background: var(--vj-red); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .login-box input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 12px; margin: 20px 0; outline: none; font-size: 16px; text-align: center; }
+        .login-box button { width: 100%; padding: 15px; background: var(--vj-red); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
 
         #plane-transition { position: fixed; inset: 0; z-index: 1500; pointer-events: none; display: none; background: white; }
         .airplane { position: absolute; top: 50%; left: -300px; transform: translateY(-50%) rotate(5deg); width: 250px; transition: 2s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* Main Content */
         #main-content { display: none; opacity: 0; transition: 1s; }
         header { background: white; padding: 15px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .slogan { font-family: 'Pacifico', cursive; color: var(--vj-red); font-size: 28px; text-shadow: 2px 2px 0px rgba(255, 237, 0, 0.8); margin: 0; }
@@ -34,9 +31,8 @@
         .prize-selector { display: flex; gap: 10px; margin: 20px 0; }
         .prize-btn { flex: 1; padding: 12px 5px; border: 1px solid #eee; background: white; border-radius: 12px; font-weight: 900; color: #666; cursor: pointer; transition: 0.2s; font-size: 11px; outline: none; }
         .prize-btn.active { background: var(--vj-red) !important; color: white !important; border-color: var(--vj-red); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(227,26,34,0.2); }
-        .prize-btn:disabled { background: #ddd !important; color: #aaa !important; cursor: not-allowed; opacity: 1; }
+        .prize-btn:disabled { background: #ddd !important; color: #aaa !important; cursor: not-allowed; opacity: 1; border: 1px solid #ccc; }
 
-        /* Slot Machine */
         .machine-card { background: white; border-radius: 30px; padding: 40px 15px; box-shadow: 0 30px 60px rgba(0,0,0,0.1); }
         .slot-container { display: flex; align-items: center; justify-content: center; background: #1a1a1a; border-radius: 20px; box-shadow: inset 0 0 30px #000; overflow: hidden; height: 140px; }
         .vjc-text { color: var(--vj-yellow); font-size: clamp(28px, 8vw, 42px); font-weight: 900; margin-right: 12px; }
@@ -51,39 +47,32 @@
         .history-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; font-weight: bold; }
         .history-item span:first-child { color: var(--vj-red); }
 
-        /* Popup Reset */
-        #reset-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 3000; }
+        #reset-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 3000; }
         .reset-box { background: white; padding: 30px; border-radius: 24px; width: 85%; max-width: 320px; text-align: center; border-top: 6px solid var(--vj-red); }
-        .reset-box h3 { color: var(--vj-red); margin: 0 0 15px; }
-        .reset-box p { font-size: 14px; color: #444; line-height: 1.6; margin-bottom: 25px; }
-        .reset-actions { display: flex; gap: 12px; }
+        .reset-actions { display: flex; gap: 12px; margin-top: 20px; }
         .reset-actions button { flex: 1; padding: 14px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
-        .btn-cancel { background: #f0f0f0; color: #666; }
-        .btn-confirm { background: var(--vj-red); color: white; }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
-    <div id="plane-transition">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Boeing_737_Silhouette.svg/1024px-Boeing_737_Silhouette.svg.png" class="airplane" id="vj-plane">
-    </div>
+    <div id="plane-transition"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Boeing_737_Silhouette.svg/1024px-Boeing_737_Silhouette.svg.png" class="airplane" id="vj-plane"></div>
 
     <div id="login-overlay">
         <div class="login-box">
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/VietJet_Air_logo.svg" style="width: 160px;">
             <h2>Lucky Roll 2026</h2>
-            <input type="password" id="pass" placeholder="Nhập mã bay..." autofocus>
+            <input type="password" id="pass" placeholder="Mã kích hoạt..." autofocus>
             <button onclick="login()">KÍCH HOẠT HỆ THỐNG</button>
         </div>
     </div>
 
     <div id="reset-overlay">
         <div class="reset-box">
-            <h3>KHỞI TẠO LẠI?</h3>
-            <p>Toàn bộ danh sách trúng thưởng sẽ bị xóa vĩnh viễn và quay về màn hình đăng nhập.</p>
+            <h3 style="color:var(--vj-red)">KHỞI TẠO LẠI?</h3>
+            <p>Xóa sạch kết quả và bắt đầu buổi lễ mới.</p>
             <div class="reset-actions">
-                <button class="btn-cancel" onclick="closeReset()">HỦY</button>
-                <button class="btn-confirm" onclick="confirmReset()">BẮT ĐẦU LẠI</button>
+                <button style="background:#f0f0f0" onclick="closeReset()">HỦY</button>
+                <button style="background:var(--vj-red);color:white" onclick="confirmReset()">ĐỒNG Ý</button>
             </div>
         </div>
     </div>
@@ -98,7 +87,7 @@
             </div>
 
             <div class="machine-card">
-                <div id="status" style="color: var(--vj-red); margin-bottom: 15px; font-size: 14px; font-weight: 900; height: 20px; text-transform: uppercase;">READY</div>
+                <div id="status" style="color: var(--vj-red); margin-bottom: 15px; font-size: 14px; font-weight: 900; height: 20px; text-transform: uppercase;">QUAY TỰ DO</div>
                 <div class="slot-container">
                     <div class="vjc-text">VJC</div>
                     <div class="number-window">
@@ -114,9 +103,9 @@
             </div>
 
             <div style="margin-top: 35px;">
-                <button onclick="openReset()" style="background: white; border: 1px solid #ddd; color: #999; padding: 10px 20px; border-radius: 12px; font-size: 11px; cursor: pointer; font-weight: bold; transition: 0.3s;">BẮT ĐẦU LẠI CHƯƠNG TRÌNH</button>
+                <button onclick="openReset()" style="background: white; border: 1px solid #ddd; color: #999; padding: 10px 20px; border-radius: 12px; font-size: 11px; cursor: pointer; font-weight: bold;">BẮT ĐẦU LẠI CHƯƠNG TRÌNH</button>
             </div>
-            <p id="footer-text" style="margin-top: 20px; font-size: 10px; color: #eee;">© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ</p>
+            <p id="footer-text" style="margin-top: 20px; font-size: 10px; color: #bbb;">© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ</p>
         </div>
     </div>
 
@@ -139,7 +128,7 @@
         let finishedPrizes = [];
         let historyData = [];
         let isSpinning = false;
-        let modeLocked = false; 
+        let gameStarted = false; // Biến chốt chặn: Khi đã chọn giải bất kỳ
 
         const columns = document.querySelectorAll('.digit-column');
         columns.forEach(col => {
@@ -150,7 +139,7 @@
 
         window.addEventListener('keydown', e => {
             if (e.key === "Control") {
-                if (modeLocked) return; 
+                if (gameStarted) return; // ĐÃ CHỌN GIẢI THÌ CẤM ĐỔI MODE
                 isRigged = !isRigged;
                 document.getElementById('footer-text').innerText = "© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ" + (isRigged ? "." : "");
             }
@@ -158,25 +147,15 @@
 
         function login() {
             if (document.getElementById('pass').value === "vjc2026") {
-                const overlay = document.getElementById('login-overlay');
-                const planeBox = document.getElementById('plane-transition');
-                const plane = document.getElementById('vj-plane');
-                const main = document.getElementById('main-content');
-
-                overlay.style.opacity = '0';
+                document.getElementById('login-overlay').style.opacity = '0';
                 setTimeout(() => {
-                    overlay.style.display = 'none';
-                    planeBox.style.display = 'block';
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('plane-transition').style.display = 'block';
                     setTimeout(() => {
-                        plane.style.left = '120%';
+                        document.getElementById('vj-plane').style.left = '120%';
                         setTimeout(() => {
-                            planeBox.style.opacity = '0';
-                            main.style.display = 'block';
-                            setTimeout(() => { 
-                                main.style.opacity = '1'; 
-                                planeBox.style.display = 'none';
-                                document.getElementById('pass').value = ""; // Xóa pass cũ
-                            }, 100);
+                            document.getElementById('main-content').style.display = 'block';
+                            setTimeout(() => { document.getElementById('main-content').style.opacity = '1'; }, 100);
                         }, 1200);
                     }, 100);
                 }, 400);
@@ -187,6 +166,7 @@
             const data = snap.val() || {};
             finishedPrizes = data.finishedPrizes || [];
             historyData = data.historyData || [];
+            if (finishedPrizes.length > 0) gameStarted = true; // Nếu DB đã có giải, chốt mode luôn
             renderHistory();
             if (!isSpinning) updateUI();
         });
@@ -199,43 +179,36 @@
 
         function setPrize(lv, btn) {
             if (isSpinning || finishedPrizes.includes(lv)) return;
-            modeLocked = true; // KHÓA MODE NGAY KHI CHỌN GIẢI
+            gameStarted = true; // CHÍNH THỨC VÀO GAME -> KHÓA PHÍM CTRL VĨNH VIỄN
             currentPrize = lv;
             document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById('status').innerText = "CHUẨN BỊ QUAY " + (lv==1?'NHẤT':lv==2?'NHÌ':'BA');
+            document.getElementById('status').innerText = "QUAY THẬT: " + (lv==1?'GIẢI NHẤT':lv==2?'GIẢI NHÌ':'GIẢI BA');
         }
 
         function updateUI() {
             const btn1 = document.getElementById('btn-1'), btn2 = document.getElementById('btn-2'), btn3 = document.getElementById('btn-3'), sBtn = document.getElementById('spinBtn');
-            
-            // Logic nút Giải
             btn3.disabled = finishedPrizes.includes(3);
             btn2.disabled = !finishedPrizes.includes(3) || finishedPrizes.includes(2);
             btn1.disabled = !finishedPrizes.includes(2) || finishedPrizes.includes(1);
-            
-            // Nếu đã xong giải nhất -> Khóa sạch sành sanh
             if (finishedPrizes.includes(1)) { 
-                sBtn.disabled = true; 
-                sBtn.innerText = "KẾT THÚC";
-                document.querySelectorAll('.prize-btn').forEach(b => b.disabled = true);
-                modeLocked = true; // Khóa mode vĩnh viễn
+                sBtn.disabled = true; sBtn.innerText = "KẾT THÚC";
+                document.getElementById('status').innerText = "HOÀN THÀNH BUỔI LỄ";
             }
         }
 
         function spin() {
-            if (currentPrize === 0) return;
+            if (isSpinning) return;
             isSpinning = true;
             const sBtn = document.getElementById('spinBtn');
             sBtn.disabled = true;
-            document.querySelectorAll('.prize-btn').forEach(b => b.disabled = true);
 
             columns.forEach(col => { col.style.transition = 'none'; col.style.transform = 'translateY(0)'; });
 
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     const targets = ["06370", "12370", "17939"];
-                    let result = isRigged ? targets[currentPrize-1] : Math.floor(Math.random()*90000+10000).toString();
+                    let result = (gameStarted && currentPrize !== 0 && isRigged) ? targets[currentPrize-1] : Math.floor(Math.random()*90000+10000).toString();
 
                     columns.forEach((col, idx) => {
                         const move = (parseInt(result[idx]) + 40) * 90;
@@ -244,21 +217,20 @@
                     });
 
                     setTimeout(() => {
-                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#e31a22', '#ffed00'] });
-                        const pName = currentPrize==1?'Giải Nhất':currentPrize==2?'Giải Nhì':'Giải Ba';
-                        
-                        historyData.unshift({ code: result, name: pName });
-                        finishedPrizes.push(currentPrize);
-                        
-                        db.ref('luckyroll_vjc').set({ historyData, finishedPrizes });
+                        // CHỈ PHÁO HOA VÀ LƯU NẾU ĐÃ CHỌN GIẢI
+                        if (currentPrize !== 0) {
+                            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#e31a22', '#ffed00'] });
+                            const pName = currentPrize==1?'Giải Nhất':currentPrize==2?'Giải Nhì':'Giải Ba';
+                            historyData.unshift({ code: result, name: pName });
+                            finishedPrizes.push(currentPrize);
+                            db.ref('luckyroll_vjc').set({ historyData, finishedPrizes });
+                            currentPrize = 0;
+                        } else {
+                            document.getElementById('status').innerText = "QUAY TỰ DO XONG";
+                        }
                         
                         isSpinning = false;
-                        // Chỉ mở khóa mode nếu chưa phải giải cuối
-                        if (!finishedPrizes.includes(1)) modeLocked = false; 
-                        
-                        currentPrize = 0;
                         document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
-                        document.getElementById('status').innerText = "CHÚC MỪNG!";
                         updateUI();
                     }, 4500);
                 });
@@ -267,18 +239,11 @@
 
         function openReset() { document.getElementById('reset-overlay').style.display = 'flex'; }
         function closeReset() { document.getElementById('reset-overlay').style.display = 'none'; }
-        
         function confirmReset() {
             const p = prompt("Mật khẩu quản trị:");
             if (p === "vjc2026") {
-                // Xóa Firebase và Tải lại trang (Về login)
-                db.ref('luckyroll_vjc').remove().then(() => {
-                    window.location.reload();
-                });
-            } else { 
-                alert("Sai mật khẩu!"); 
-                closeReset();
-            }
+                db.ref('luckyroll_vjc').remove().then(() => { window.location.reload(); });
+            } else { alert("Sai mật khẩu!"); closeReset(); }
         }
     </script>
 </body>
