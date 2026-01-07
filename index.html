@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vietjet Air - Bay là thích ngay!</title>
-    
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3233/3233895.png" type="image/png">
-    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Pacifico&display=swap');
@@ -28,19 +26,19 @@
         .prize-selector { display: flex; gap: 10px; margin: 20px 0; }
         .prize-btn { flex: 1; padding: 12px 5px; border: 1px solid #eee; background: white; border-radius: 12px; font-weight: 900; color: #666; cursor: pointer; transition: 0.2s; font-size: 11px; outline: none; }
         .prize-btn.active { background: var(--vj-red); color: white; border-color: var(--vj-red); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(227,26,34,0.2); }
-        .prize-btn:disabled { opacity: 0.5; cursor: not-allowed; background: #eee; color: #aaa; border-color: #ddd; }
+        .prize-btn:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
 
         .machine-card { background: white; border-radius: 30px; padding: 40px 15px; box-shadow: 0 30px 60px rgba(0,0,0,0.1); position: relative; }
         .slot-container { display: flex; align-items: center; justify-content: center; background: #1a1a1a; padding: 30px 10px; border-radius: 20px; box-shadow: inset 0 0 30px #000; overflow: hidden; }
         .vjc-text { color: var(--vj-yellow); font-size: clamp(28px, 8vw, 42px); font-weight: 900; margin-right: 12px; }
         
         .number-window { height: 80px; display: flex; overflow: hidden; font-family: 'Courier New', monospace; font-size: clamp(45px, 12vw, 65px); color: white; line-height: 80px; }
-        .digit-column { width: clamp(35px, 9vw, 50px); display: flex; flex-direction: column; text-align: center; transform: translateY(0); }
+        .digit-column { width: clamp(35px, 9vw, 50px); display: flex; flex-direction: column; text-align: center; }
         .digit-column span { height: 80px; min-height: 80px; display: flex; align-items: center; justify-content: center; }
 
         #spinBtn { width: 100%; max-width: 280px; padding: 20px; margin-top: 30px; background: linear-gradient(to bottom, #ff4d4d, var(--vj-red)); color: white; border: none; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 0 #b31217; outline: none; }
         #spinBtn:active { transform: translateY(4px); box-shadow: 0 4px 0 #b31217; }
-        #spinBtn:disabled { background: #ccc; box-shadow: none; transform: translateY(4px); }
+        #spinBtn:disabled { background: #ccc; box-shadow: none; transform: translateY(4px); opacity: 0.7; }
 
         .history-card { background: white; border-radius: 20px; margin-top: 30px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: left; }
         .history-card h3 { color: var(--vj-red); font-size: 16px; border-bottom: 2px solid #f0f2f5; padding-bottom: 10px; margin-top: 0; }
@@ -62,22 +60,18 @@
     <div id="main-content">
         <header><h1 class="slogan">Bay là thích ngay!</h1></header>
         <div class="container">
-            <div class="prize-selector">
+            <div class="prize-selector" id="pSelector">
                 <button class="prize-btn" id="btn-3" onclick="setPrize(3, this)">GIẢI BA</button>
-                <button class="prize-btn" id="btn-2" onclick="setPrize(2, this)">GIẢI NHÌ</button>
-                <button class="prize-btn" id="btn-1" onclick="setPrize(1, this)">GIẢI NHẤT</button>
+                <button class="prize-btn" id="btn-2" onclick="setPrize(2, this)" disabled>GIẢI NHÌ</button>
+                <button class="prize-btn" id="btn-1" onclick="setPrize(1, this)" disabled>GIẢI NHẤT</button>
             </div>
 
             <div class="machine-card">
                 <div id="status" style="color: var(--vj-red); margin-bottom: 15px; font-size: 15px; font-weight: 900; height: 20px; text-transform: uppercase;"></div>
                 <div class="slot-container">
                     <div class="vjc-text">VJC</div>
-                    <div class="number-window" id="window">
-                        <div class="digit-column"></div>
-                        <div class="digit-column"></div>
-                        <div class="digit-column"></div>
-                        <div class="digit-column"></div>
-                        <div class="digit-column"></div>
+                    <div class="number-window">
+                        <div class="digit-column"></div><div class="digit-column"></div><div class="digit-column"></div><div class="digit-column"></div><div class="digit-column"></div>
                     </div>
                 </div>
                 <button id="spinBtn" onclick="spin()">QUAY NGAY</button>
@@ -87,19 +81,18 @@
                 <h3>DANH SÁCH TRÚNG THƯỞNG:</h3>
                 <ul class="history-list" id="historyList"></ul>
             </div>
-            
             <p id="footer-text" style="margin-top: 30px; font-size: 11px; color: #bbb;">© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ</p>
         </div>
     </div>
 
     <script>
-        document.onkeydown = function(e) {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false;
-        };
+        // Chặn F12
+        document.onkeydown = function(e) { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false; };
 
         let isRandomMode = false;
         let currentPrize = 0;
         let currentBtn = null;
+        let finishedPrizes = []; 
         const columns = document.querySelectorAll('.digit-column');
 
         columns.forEach(col => {
@@ -123,6 +116,10 @@
         }
 
         function setPrize(lv, btn) {
+            if (currentBtn && currentBtn !== btn && !finishedPrizes.includes(currentPrize)) {
+                // Đang chọn dở giải này mà bấm giải khác thì kệ
+            }
+            
             if(btn.classList.contains('active')) {
                 currentPrize = 0;
                 btn.classList.remove('active');
@@ -138,15 +135,17 @@
 
         function spin() {
             const btn = document.getElementById('spinBtn');
+            const allPrizeBtns = document.querySelectorAll('.prize-btn');
+            
+            // Khóa tất cả khi đang xoay
             btn.disabled = true;
+            allPrizeBtns.forEach(b => b.disabled = true);
 
-            // BƯỚC QUAN TRỌNG: Đưa tất cả cột về vị trí 0 ngay lập tức trước khi chạy hiệu ứng mới
             columns.forEach(col => {
                 col.style.transition = 'none';
                 col.style.transform = 'translateY(0)';
             });
 
-            // Ép trình duyệt nhận diện việc reset trước khi chạy hiệu ứng cuộn (dùng requestAnimationFrame)
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     let result = "";
@@ -160,7 +159,6 @@
 
                     columns.forEach((col, idx) => {
                         const targetDigit = parseInt(result[idx]);
-                        // Tăng số vòng cuộn lên 40 để nhìn xoay nhanh và lâu hơn
                         const move = (targetDigit + 40) * 80; 
                         col.style.transition = `transform ${2.5 + idx*0.3}s cubic-bezier(0.1, 0, 0.1, 1)`;
                         col.style.transform = `translateY(-${move}px)`;
@@ -176,12 +174,37 @@
                             li.innerHTML = `<span>VJC ${result}</span> <span>${pName}</span>`;
                             list.prepend(li);
 
-                            currentBtn.disabled = true;
+                            finishedPrizes.push(currentPrize);
+                            
+                            // Mở khóa giải tiếp theo theo trình tự Ba -> Nhì -> Nhất
+                            if (currentPrize === 3) document.getElementById('btn-2').disabled = false;
+                            if (currentPrize === 2) document.getElementById('btn-1').disabled = false;
+                            
                             currentBtn.classList.remove('active');
-                            document.getElementById('status').innerText = "ĐÃ XONG " + pName.toUpperCase();
-                            currentPrize = 0;
+                            currentBtn.style.background = "#eee";
+                            
+                            // Nếu đã quay xong giải Nhất (giải cuối cùng)
+                            if (currentPrize === 1) {
+                                document.getElementById('status').innerText = ""; // Mất chữ đang quay
+                                currentPrize = 0; 
+                            } else {
+                                document.getElementById('status').innerText = "ĐÃ XONG " + pName.toUpperCase();
+                            }
                         }
+                        
                         btn.disabled = false;
+                        // Mở lại các nút chưa quay xong
+                        allPrizeBtns.forEach(b => {
+                            const lv = parseInt(b.id.split('-')[1]);
+                            if (!finishedPrizes.includes(lv)) {
+                                // Chỉ mở nếu đúng thứ tự
+                                if (lv === 3 && !finishedPrizes.includes(3)) b.disabled = false;
+                                if (lv === 2 && finishedPrizes.includes(3) && !finishedPrizes.includes(2)) b.disabled = false;
+                                if (lv === 1 && finishedPrizes.includes(2) && !finishedPrizes.includes(1)) b.disabled = false;
+                            } else {
+                                b.disabled = true; // Giải đã quay xong thì khóa hẳn
+                            }
+                        });
                     }, 4500);
                 });
             });
