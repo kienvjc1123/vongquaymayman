@@ -86,129 +86,138 @@
     </div>
 
     <script>
-        // Chặn F12
-        document.onkeydown = function(e) { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false; };
+    // Chặn F12
+    document.onkeydown = function(e) { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false; };
 
-        let isRandomMode = false;
-        let currentPrize = 0;
-        let currentBtn = null;
-        let finishedPrizes = []; 
-        const columns = document.querySelectorAll('.digit-column');
+    let isRandomMode = false;
+    let currentPrize = 0; // Giải đang chọn (0: Tự do, 1: Nhất, 2: Nhì, 3: Ba)
+    let currentBtn = null;
+    let finishedPrizes = []; 
+    const columns = document.querySelectorAll('.digit-column');
+
+    // Khởi tạo dãy số cho các cột
+    columns.forEach(col => {
+        let content = '';
+        for(let i=0; i<60; i++) content += `<span>${i % 10}</span>`;
+        col.innerHTML = content;
+    });
+
+    // Chế độ bí mật (Ctrl)
+    window.addEventListener('keydown', function(e) {
+        if (e.key === "Control") {
+            isRandomMode = !isRandomMode;
+            document.getElementById('footer-text').innerText = "© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ" + (isRandomMode ? "." : "");
+        }
+    });
+
+    function login() {
+        if (document.getElementById('pass').value === "vjc2026") {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        }
+    }
+
+    function setPrize(lv, btn) {
+        // Nếu giải này đã quay rồi thì không cho chọn lại
+        if (finishedPrizes.includes(lv)) return;
+
+        if(btn.classList.contains('active')) {
+            currentPrize = 0;
+            btn.classList.remove('active');
+            document.getElementById('status').innerText = "";
+        } else {
+            currentPrize = lv;
+            currentBtn = btn;
+            document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('status').innerText = "ĐANG QUAY GIẢI " + (lv==1?'NHẤT':lv==2?'NHÌ':'BA');
+        }
+    }
+
+    function spin() {
+        const btn = document.getElementById('spinBtn');
+        const allPrizeBtns = document.querySelectorAll('.prize-btn');
+        const statusEl = document.getElementById('status');
+        
+        // Khóa tất cả tương tác khi đang xoay
+        btn.disabled = true;
+        allPrizeBtns.forEach(b => b.disabled = true);
+
+        // Lưu giải đang thực hiện vào biến tạm để tránh thay đổi giữa chừng
+        const executingPrize = currentPrize;
 
         columns.forEach(col => {
-            let content = '';
-            for(let i=0; i<60; i++) content += `<span>${i % 10}</span>`;
-            col.innerHTML = content;
+            col.style.transition = 'none';
+            col.style.transform = 'translateY(0)';
         });
 
-        window.addEventListener('keydown', function(e) {
-            if (e.key === "Control") {
-                isRandomMode = !isRandomMode;
-                document.getElementById('footer-text').innerText = "© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ" + (isRandomMode ? "." : "");
-            }
-        });
-
-        function login() {
-            if (document.getElementById('pass').value === "vjc2026") {
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-            }
-        }
-
-        function setPrize(lv, btn) {
-            if (currentBtn && currentBtn !== btn && !finishedPrizes.includes(currentPrize)) {
-                // Đang chọn dở giải này mà bấm giải khác thì kệ
-            }
-            
-            if(btn.classList.contains('active')) {
-                currentPrize = 0;
-                btn.classList.remove('active');
-                document.getElementById('status').innerText = "";
-            } else {
-                currentPrize = lv;
-                currentBtn = btn;
-                document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById('status').innerText = "ĐANG QUAY GIẢI " + (lv==1?'NHẤT':lv==2?'NHÌ':'BA');
-            }
-        }
-
-        function spin() {
-            const btn = document.getElementById('spinBtn');
-            const allPrizeBtns = document.querySelectorAll('.prize-btn');
-            
-            // Khóa tất cả khi đang xoay
-            btn.disabled = true;
-            allPrizeBtns.forEach(b => b.disabled = true);
-
-            columns.forEach(col => {
-                col.style.transition = 'none';
-                col.style.transform = 'translateY(0)';
-            });
-
+        requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    let result = "";
-                    const targets = ["06370", "12370", "17939"];
-                    
-                    if (isRandomMode || currentPrize === 0) {
-                        result = Math.floor(Math.random() * 90000 + 10000).toString();
-                    } else {
-                        result = targets[currentPrize - 1];
-                    }
+                let result = "";
+                const targets = ["06370", "12370", "17939"]; // Nhất - Nhì - Ba
+                
+                // Xác định kết quả dựa trên giải đã chọn
+                if (isRandomMode || executingPrize === 0) {
+                    result = Math.floor(Math.random() * 90000 + 10000).toString();
+                } else {
+                    result = targets[executingPrize - 1];
+                }
 
-                    columns.forEach((col, idx) => {
-                        const targetDigit = parseInt(result[idx]);
-                        const move = (targetDigit + 40) * 80; 
-                        col.style.transition = `transform ${2.5 + idx*0.3}s cubic-bezier(0.1, 0, 0.1, 1)`;
-                        col.style.transform = `translateY(-${move}px)`;
-                    });
+                columns.forEach((col, idx) => {
+                    const targetDigit = parseInt(result[idx]);
+                    const move = (targetDigit + 40) * 80; 
+                    col.style.transition = `transform ${2.5 + idx*0.3}s cubic-bezier(0.1, 0, 0.1, 1)`;
+                    col.style.transform = `translateY(-${move}px)`;
+                });
 
-                    setTimeout(() => {
-                        if (currentPrize !== 0) {
-                            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#e31a22', '#ffed00'] });
-                            const list = document.getElementById('historyList');
-                            const li = document.createElement('li');
-                            li.className = 'history-item';
-                            const pName = currentPrize==1?'Giải Nhất':currentPrize==2?'Giải Nhì':'Giải Ba';
-                            li.innerHTML = `<span>VJC ${result}</span> <span>${pName}</span>`;
-                            list.prepend(li);
-
-                            finishedPrizes.push(currentPrize);
-                            
-                            // Mở khóa giải tiếp theo theo trình tự Ba -> Nhì -> Nhất
-                            if (currentPrize === 3) document.getElementById('btn-2').disabled = false;
-                            if (currentPrize === 2) document.getElementById('btn-1').disabled = false;
-                            
-                            currentBtn.classList.remove('active');
-                            currentBtn.style.background = "#eee";
-                            
-                            // Nếu đã quay xong giải Nhất (giải cuối cùng)
-                            if (currentPrize === 1) {
-                                document.getElementById('status').innerText = ""; // Mất chữ đang quay
-                                currentPrize = 0; 
-                            } else {
-                                document.getElementById('status').innerText = "ĐÃ XONG " + pName.toUpperCase();
-                            }
-                        }
+                setTimeout(() => {
+                    // CHỈ XỬ LÝ NẾU CÓ CHỌN GIẢI (executingPrize > 0)
+                    if (executingPrize !== 0) {
+                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#e31a22', '#ffed00'] });
                         
+                        const list = document.getElementById('historyList');
+                        const li = document.createElement('li');
+                        li.className = 'history-item';
+                        const pName = executingPrize==1?'Giải Nhất':executingPrize==2?'Giải Nhì':'Giải Ba';
+                        li.innerHTML = `<span>VJC ${result}</span> <span>${pName}</span>`;
+                        list.prepend(li);
+
+                        finishedPrizes.push(executingPrize);
+                        
+                        // Reset giải đang chọn về 0 (tự do) ngay sau khi xong
+                        currentPrize = 0;
+                        if(currentBtn) currentBtn.classList.remove('active');
+                    }
+                    
+                    // KIỂM TRA ĐIỀU KIỆN KẾT THÚC HOẶC TIẾP TỤC
+                    if (finishedPrizes.includes(1)) {
+                        // Nếu đã quay xong giải Nhất (giải cuối)
+                        btn.disabled = true;
+                        btn.innerText = "KẾT THÚC CHƯƠNG TRÌNH";
+                        statusEl.innerText = "HOÀN THÀNH QUAY SỐ";
+                        allPrizeBtns.forEach(b => b.disabled = true);
+                    } else {
+                        // Nếu chưa xong giải Nhất, cho phép quay tiếp tự do hoặc chọn giải mới
                         btn.disabled = false;
-                        // Mở lại các nút chưa quay xong
+                        statusEl.innerText = "HÃY CHỌN GIẢI TIẾP THEO";
+
+                        // Cập nhật trạng thái các nút chọn giải theo thứ tự
                         allPrizeBtns.forEach(b => {
                             const lv = parseInt(b.id.split('-')[1]);
                             if (!finishedPrizes.includes(lv)) {
-                                // Chỉ mở nếu đúng thứ tự
-                                if (lv === 3 && !finishedPrizes.includes(3)) b.disabled = false;
-                                if (lv === 2 && finishedPrizes.includes(3) && !finishedPrizes.includes(2)) b.disabled = false;
-                                if (lv === 1 && finishedPrizes.includes(2) && !finishedPrizes.includes(1)) b.disabled = false;
+                                if (lv === 3) b.disabled = false; // Luôn mở giải Ba nếu chưa quay
+                                if (lv === 2 && finishedPrizes.includes(3)) b.disabled = false; // Mở Nhì nếu xong Ba
+                                if (lv === 1 && finishedPrizes.includes(2)) b.disabled = false; // Mở Nhất nếu xong Nhì
                             } else {
-                                b.disabled = true; // Giải đã quay xong thì khóa hẳn
+                                b.disabled = true;
+                                b.style.background = "#eee"; // Làm mờ nút đã xong
                             }
                         });
-                    }, 4500);
-                });
+                    }
+                }, 4500);
             });
-        }
-    </script>
+        });
+    }
+</script>
 </body>
 </html>
