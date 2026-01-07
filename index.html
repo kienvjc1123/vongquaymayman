@@ -23,11 +23,9 @@
             font-weight: 400;
         }
 
-        /* Plane Layer */
         #plane-layer { position: fixed; inset: 0; z-index: 2500; pointer-events: none; display: none; background: white; }
         .vj-plane-img { position: absolute; top: 50%; left: -400px; width: 280px; transform: translateY(-50%); transition: left 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* Login */
         #login-overlay { position: fixed; inset: 0; background: var(--vj-red); display: flex; align-items: center; justify-content: center; z-index: 2000; }
         .login-box { background: white; padding: 35px 30px; border-radius: 30px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
         .login-logo { width: 140px; margin-bottom: 10px; }
@@ -35,7 +33,6 @@
         .login-box input { width: 100%; padding: 16px; border: 2px solid #f0f0f0; border-radius: 15px; margin-bottom: 20px; text-align: center; font-size: 16px; font-weight: 600; outline: none; }
         .login-box button { width: 100%; padding: 16px; background: var(--vj-red); color: white; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; font-size: 16px; box-shadow: 0 4px 0 var(--vj-dark-red); }
 
-        /* Main UI */
         #main-content { display: none; opacity: 0; transition: 0.5s; }
         header { background: white; padding: 12px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .container { max-width: 500px; margin: auto; padding: 20px; text-align: center; }
@@ -53,8 +50,7 @@
         .digit-column { width: 38px; display: flex; flex-direction: column; text-align: center; }
         .digit-column span { height: 80px; display: flex; align-items: center; justify-content: center; }
 
-        #spinBtn { width: 100%; max-width: 240px; padding: 16px; margin-top: 25px; background: var(--vj-red); color: white; border: none; border-radius: 50px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 0 var(--vj-dark-red); transition: 0.2s; }
-        #spinBtn:active { transform: translateY(3px); box-shadow: none; }
+        #spinBtn { width: 100%; max-width: 240px; padding: 16px; margin-top: 25px; background: var(--vj-red); color: white; border: none; border-radius: 50px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 0 var(--vj-dark-red); }
         #spinBtn:disabled { background: #ccc !important; box-shadow: none !important; color: #999; transform: translateY(3px); }
 
         .history-card { background: white; border-radius: 20px; margin-top: 25px; padding: 20px; text-align: left; }
@@ -89,7 +85,7 @@
             </div>
             
             <div class="machine-card">
-                <div id="status" style="color: var(--vj-red); margin-bottom: 10px; font-size: 13px; font-weight: 800; height: 20px; text-transform: uppercase;">CHẾ ĐỘ QUAY TỰ DO</div>
+                <div id="status" style="color: var(--vj-red); margin-bottom: 10px; font-size: 13px; font-weight: 800; height: 20px; text-transform: uppercase;"></div>
                 <div class="slot-container">
                     <div class="vjc-label">VJC</div>
                     <div class="number-window" id="window"></div>
@@ -121,7 +117,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let isRigged = false, currentPrize = 0, finishedPrizes = [], historyData = [], isSpinning = false;
+        let isRigged = false, currentPrize = 0, finishedPrizes = [], historyData = [], isSpinning = false, modeLocked = false;
 
         const win = document.getElementById('window');
         for(let i=0; i<5; i++) {
@@ -145,13 +141,17 @@
                         setTimeout(() => { document.getElementById('main-content').style.opacity = '1'; }, 50);
                     }, 900);
                 }, 100);
-            } else { alert("Sai mã kích hoạt!"); }
+            } else { alert("Sai mã!"); }
         }
 
         db.ref('luckyroll_vjc').on('value', snap => {
             const data = snap.val() || {};
             finishedPrizes = data.finishedPrizes || [];
             historyData = data.historyData || [];
+            
+            // Nếu Firebase trả về đã có giải, khóa mode ngay (phòng trường hợp F5 trình duyệt)
+            if (finishedPrizes.length > 0) modeLocked = true;
+            
             document.getElementById('historyList').innerHTML = historyData.map(item => 
                 `<div class="history-item"><span style="color:var(--vj-red)">VJC ${item.code}</span> <span>${item.name}</span></div>`
             ).join('');
@@ -160,11 +160,17 @@
 
         function setPrize(lv, btn) {
             if (isSpinning || !btn.classList.contains('enabled')) return;
-            // Nếu bấm lại vào giải đang chọn thì hủy chọn (về quay tự do)
+            
+            // TRIGGER: Khi nhấn chọn Giải Ba lần đầu, khóa mode vĩnh viễn
+            if (lv === 3 && !modeLocked) {
+                modeLocked = true;
+                console.log("Mode đã bị khóa tại: " + (isRigged ? "Dàn xếp" : "Diễn"));
+            }
+
             if (currentPrize === lv) {
                 currentPrize = 0;
                 btn.classList.remove('active');
-                document.getElementById('status').innerText = "CHẾ ĐỘ QUAY TỰ DO";
+                document.getElementById('status').innerText = "";
             } else {
                 currentPrize = lv;
                 document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
@@ -176,32 +182,28 @@
 
         function updateUI() {
             const b1 = document.getElementById('btn-1'), b2 = document.getElementById('btn-2'), b3 = document.getElementById('btn-3'), s = document.getElementById('spinBtn');
-            const st = document.getElementById('status');
-
             [b1, b2, b3].forEach(b => b.classList.remove('enabled', 'finished'));
-
+            
             if (finishedPrizes.includes(3)) b3.classList.add('finished');
             else b3.classList.add('enabled');
-
             if (finishedPrizes.includes(2)) b2.classList.add('finished');
             else if (finishedPrizes.includes(3)) b2.classList.add('enabled');
-
             if (finishedPrizes.includes(1)) b1.classList.add('finished');
             else if (finishedPrizes.includes(2)) b1.classList.add('enabled');
 
-            // Nút quay LUÔN MỞ để quay tự do, trừ khi đang quay hoặc đã xong sạch giải
             if (finishedPrizes.includes(1)) {
                 s.disabled = true; s.innerText = "KẾT THÚC";
             } else {
                 s.disabled = false;
                 s.innerText = "QUAY NGAY";
             }
+            document.getElementById('footer-text').innerText = "© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ" + (isRigged ? "." : "");
         }
 
         function spin() {
             if (isSpinning) return;
             isSpinning = true;
-            document.getElementById('status').innerText = currentPrize === 0 ? "ĐANG QUAY TỰ DO..." : "MÁY BAY ĐANG CẤT CÁNH...";
+            document.getElementById('status').innerText = "ĐANG QUAY...";
             document.getElementById('spinBtn').disabled = true;
             
             const cols = document.querySelectorAll('.digit-column');
@@ -224,9 +226,6 @@
                         finishedPrizes.push(currentPrize);
                         db.ref('luckyroll_vjc').set({ historyData, finishedPrizes });
                         currentPrize = 0;
-                    } else {
-                        // Nếu là quay tự do thì chỉ hiện kết quả, không lưu
-                        document.getElementById('status').innerText = "KẾT QUẢ THỬ: VJC " + result;
                     }
                     isSpinning = false;
                     document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
@@ -238,14 +237,21 @@
         function confirmReset() {
             if (confirm("Xác nhận khởi tạo lại toàn bộ dữ liệu?")) {
                 const p = prompt("Mật khẩu bảo mật:");
-                if (p === "vjc2026") db.ref('luckyroll_vjc').remove().then(() => window.location.reload());
+                if (p === "vjc2026") {
+                    db.ref('luckyroll_vjc').remove().then(() => {
+                        modeLocked = false;
+                        isRigged = false;
+                        window.location.reload();
+                    });
+                }
             }
         }
 
         window.addEventListener('keydown', e => { 
             if (e.key === "Control") {
+                if (modeLocked) return; // Không cho phép đổi mode nếu đã lock
                 isRigged = !isRigged;
-                document.getElementById('footer-text').innerText = "© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ" + (isRigged ? "." : "");
+                updateUI();
             }
         });
     </script>
