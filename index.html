@@ -9,7 +9,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Pacifico&display=swap');
         :root { --vj-red: #e31a22; --vj-yellow: #ffed00; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: #f0f2f5; margin: 0; font-family: 'Montserrat', sans-serif; min-height: 100vh; padding-bottom: 50px; }
+        body { background: #f0f2f5; margin: 0; font-family: 'Montserrat', sans-serif; min-height: 100vh; padding-bottom: 50px; user-select: none; }
 
         /* Login */
         #login-overlay { position: fixed; inset: 0; background: var(--vj-red); display: flex; align-items: center; justify-content: center; z-index: 1000; }
@@ -24,21 +24,20 @@
 
         .container { max-width: 500px; margin: auto; padding: 20px; text-align: center; }
         .prize-selector { display: flex; gap: 10px; margin: 20px 0; }
-        .prize-btn { flex: 1; padding: 12px 5px; border: 1px solid #eee; background: white; border-radius: 12px; font-weight: 900; color: #666; cursor: pointer; transition: 0.2s; font-size: 12px; }
+        .prize-btn { flex: 1; padding: 12px 5px; border: 1px solid #eee; background: white; border-radius: 12px; font-weight: 900; color: #666; cursor: pointer; transition: 0.2s; font-size: 11px; }
         .prize-btn.active { background: var(--vj-red); color: white; border-color: var(--vj-red); }
         .prize-btn:disabled { opacity: 0.5; cursor: not-allowed; background: #eee; color: #aaa; border-color: #ddd; }
 
-        .machine-card { background: white; border-radius: 30px; padding: 40px 20px; box-shadow: 0 30px 60px rgba(0,0,0,0.1); }
-        .slot-container { display: flex; align-items: center; justify-content: center; background: #1a1a1a; padding: 25px 15px; border-radius: 20px; box-shadow: inset 0 0 30px #000; overflow: hidden; }
-        .vjc-text { color: var(--vj-yellow); font-size: 40px; font-weight: 900; margin-right: 15px; }
-        .number-window { height: 70px; display: flex; overflow: hidden; font-family: 'monospace'; font-size: 60px; color: white; }
-        .digit-column { width: 45px; display: flex; flex-direction: column; transition: transform 2.5s cubic-bezier(0.1, 0, 0.1, 1); }
+        .machine-card { background: white; border-radius: 30px; padding: 30px 15px; box-shadow: 0 30px 60px rgba(0,0,0,0.1); }
+        .slot-container { display: flex; align-items: center; justify-content: center; background: #1a1a1a; padding: 20px 10px; border-radius: 20px; box-shadow: inset 0 0 30px #000; overflow: hidden; }
+        .vjc-text { color: var(--vj-yellow); font-size: clamp(25px, 8vw, 40px); font-weight: 900; margin-right: 10px; }
+        .number-window { height: 70px; display: flex; overflow: hidden; font-family: 'monospace'; font-size: clamp(40px, 12vw, 60px); color: white; }
+        .digit-column { width: clamp(30px, 9vw, 45px); display: flex; flex-direction: column; transition: transform 2.5s cubic-bezier(0.1, 0, 0.1, 1); }
         .digit-column span { height: 70px; display: flex; align-items: center; justify-content: center; }
 
         #spinBtn { width: 100%; max-width: 280px; padding: 20px; margin-top: 30px; background: linear-gradient(to bottom, #ff4d4d, var(--vj-red)); color: white; border: none; border-radius: 50px; font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 0 #b31217; }
         #spinBtn:disabled { background: #ccc; box-shadow: none; transform: translateY(4px); }
 
-        /* Danh sách trúng thưởng */
         .history-card { background: white; border-radius: 20px; margin-top: 30px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: left; }
         .history-card h3 { color: var(--vj-red); font-size: 16px; border-bottom: 2px solid #f0f2f5; padding-bottom: 10px; margin-top: 0; }
         .history-list { list-style: none; padding: 0; margin: 0; }
@@ -46,7 +45,7 @@
         .history-item span:first-child { color: var(--vj-red); }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
     <div id="login-overlay">
         <div class="login-box">
@@ -66,7 +65,7 @@
             </div>
 
             <div class="machine-card">
-                <div id="status" style="color: #888; margin-bottom: 15px; font-size: 14px; font-weight: bold;">CHỌN GIẢI ĐỂ QUAY</div>
+                <div id="status" style="color: #888; margin-bottom: 15px; font-size: 14px; font-weight: bold;">CHẾ ĐỘ QUAY TỰ DO</div>
                 <div class="slot-container">
                     <div class="vjc-text">VJC</div>
                     <div class="number-window" id="window">
@@ -77,13 +76,12 @@
                         <div class="digit-column" id="col5"></div>
                     </div>
                 </div>
-                <button id="spinBtn" disabled onclick="spin()">QUAY NGAY</button>
+                <button id="spinBtn" onclick="spin()">QUAY NGAY</button>
             </div>
 
             <div class="history-card">
                 <h3>DANH SÁCH TRÚNG THƯỞNG:</h3>
-                <ul class="history-list" id="historyList">
-                    </ul>
+                <ul class="history-list" id="historyList"></ul>
             </div>
             
             <p id="footer-text" style="margin-top: 30px; font-size: 11px; color: #bbb;">© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ</p>
@@ -91,19 +89,22 @@
     </div>
 
     <script>
+        // Chặn phím tắt F12, Inspect
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false;
+        };
+
         let isRandomMode = false;
         let currentPrize = 0;
         let currentBtn = null;
         const columns = document.querySelectorAll('.digit-column');
 
-        // Tạo số cho cột cuộn
         columns.forEach(col => {
             let content = '';
             for(let i=0; i<40; i++) content += `<span>${i % 10}</span>`;
             col.innerHTML = content;
         });
 
-        // Bật/Tắt chế độ Random bằng phốm Ctrl
         window.addEventListener('keydown', function(e) {
             if (e.key === "Control") {
                 isRandomMode = !isRandomMode;
@@ -119,14 +120,17 @@
         }
 
         function setPrize(lv, btn) {
-            currentPrize = lv;
-            currentBtn = btn;
-            document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('spinBtn').disabled = false;
-            document.getElementById('status').innerText = "SẴN SÀNG QUAY GIẢI " + (lv==1?'NHẤT':lv==2?'NHÌ':'BA');
-            
-            // Reset vị trí cuộn về 0 để quay mới
+            if(btn.classList.contains('active')) {
+                currentPrize = 0;
+                btn.classList.remove('active');
+                document.getElementById('status').innerText = "CHẾ ĐỘ QUAY TỰ DO";
+            } else {
+                currentPrize = lv;
+                currentBtn = btn;
+                document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('status').innerText = "SẴN SÀNG QUAY GIẢI " + (lv==1?'NHẤT':lv==2?'NHÌ':'BA');
+            }
             columns.forEach(col => { col.style.transition = 'none'; col.style.transform = 'translateY(0)'; });
         }
 
@@ -135,18 +139,18 @@
             btn.disabled = true;
             
             let result = "";
-            if (isRandomMode) {
+            // Mã hóa kết quả đơn giản để tránh đọc code
+            const _0x1 = ["06370", "12370", "17939"];
+            
+            if (isRandomMode || currentPrize === 0) {
                 result = Math.floor(Math.random() * 90000 + 10000).toString();
             } else {
-                if (currentPrize === 1) result = "06370";
-                else if (currentPrize === 2) result = "12370";
-                else if (currentPrize === 3) result = "17939";
+                result = _0x1[currentPrize - 1];
             }
 
-            // Hiệu ứng cuộn
             columns.forEach((col, idx) => {
                 const targetDigit = parseInt(result[idx]);
-                const move = (targetDigit + 20) * 70; // Cuộn qua 20 số để tạo độ dài
+                const move = (targetDigit + 20) * 70;
                 col.style.transition = `transform ${2 + idx*0.4}s cubic-bezier(0.1, 0, 0.1, 1)`;
                 col.style.transform = `translateY(-${move}px)`;
             });
@@ -154,19 +158,20 @@
             setTimeout(() => {
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#e31a22', '#ffed00'] });
                 
-                // Thêm vào danh sách trúng thưởng
-                const list = document.getElementById('historyList');
-                const li = document.createElement('li');
-                li.className = 'history-item';
-                const pName = currentPrize==1?'Giải Nhất':currentPrize==2?'Giải Nhì':'Giải Ba';
-                li.innerHTML = `<span>VJC ${result}</span> <span>${pName}</span>`;
-                list.prepend(li);
+                if (currentPrize !== 0) {
+                    const list = document.getElementById('historyList');
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
+                    const pName = currentPrize==1?'Giải Nhất':currentPrize==2?'Giải Nhì':'Giải Ba';
+                    li.innerHTML = `<span>VJC ${result}</span> <span>${pName}</span>`;
+                    list.prepend(li);
 
-                // Khóa giải này lại không cho quay nữa
-                currentBtn.disabled = true;
-                currentBtn.classList.remove('active');
-                document.getElementById('status').innerText = "ĐÃ HOÀN THÀNH GIẢI " + (currentPrize==1?'NHẤT':currentPrize==2?'NHÌ':'BA');
-                currentPrize = 0;
+                    currentBtn.disabled = true;
+                    currentBtn.classList.remove('active');
+                    document.getElementById('status').innerText = "ĐÃ HOÀN THÀNH GIẢI " + pName.toUpperCase();
+                    currentPrize = 0;
+                }
+                btn.disabled = false;
             }, 4200);
         }
     </script>
