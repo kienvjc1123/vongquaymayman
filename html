@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>⚡ TRANG CHỦ QUAY SỐ ⚡</title>
+    <style>
+        body { background: #0f0f0f; color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; }
+        .machine { background: linear-gradient(180deg, #444, #111); border: 8px solid #ffd700; border-radius: 20px; display: inline-block; padding: 40px; margin-top: 50px; box-shadow: 0 0 50px rgba(255,215,0,0.2); }
+        .slot { font-size: 120px; background: #000; padding: 20px 60px; border-radius: 10px; color: #00ff00; text-shadow: 0 0 20px #00ff00; font-family: 'Courier New', monospace; }
+        button { background: #ff0000; color: white; border: none; padding: 20px 50px; font-size: 24px; font-weight: bold; border-radius: 50px; cursor: pointer; margin-top: 30px; box-shadow: 0 5px 0 #8b0000; }
+        button:active { transform: translateY(5px); box-shadow: none; }
+    </style>
+</head>
+<body>
+    <div class="machine">
+        <h2>HỆ THỐNG QUAY SỐ TỰ ĐỘNG</h2>
+        <div class="slot" id="box">00</div><br>
+        <button id="spinBtn">QUAY (SPIN)</button>
+    </div>
+
+    <script>
+        document.getElementById('spinBtn').onclick = function(e) {
+            let box = document.getElementById('box');
+            let btn = this;
+            btn.disabled = true;
+            let count = 0;
+            let speed = 50;
+            
+            let run = setInterval(() => {
+                box.innerText = Math.floor(Math.random() * 90) + 10;
+                count++;
+                if (count > 30) {
+                    clearInterval(run);
+                    // MẸO: Nhấn giữ phím "Ctrl" khi bấm nút để ra số 68 (Lộc Phát)
+                    box.innerText = e.ctrlKey ? "68" : Math.floor(Math.random() * 90) + 10;
+                    btn.disabled = false;
+                }
+            }, speed);
+        };
+    </script>
+</body>
+</html>
