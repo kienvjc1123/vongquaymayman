@@ -2,111 +2,80 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vietjet Air - Lucky Roll 2026</title>
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/kienvjc1123/vjc-asset/main/airplane.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Pacifico&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-
     <style>
-        :root { --vj-red: #e31a22; --vj-yellow: #ffed00; --vj-dark-red: #b31217; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Montserrat', sans-serif; }
-        body { background: #f0f2f5; margin: 0; min-height: 100vh; overflow-x: hidden; }
-
-        .vj-slogan-style { font-family: 'Pacifico', cursive !important; color: var(--vj-red); text-shadow: 1px 2px 0px var(--vj-yellow); font-weight: 400; }
-
-        /* Plane Layer */
-        #plane-layer { position: fixed; inset: 0; z-index: 2500; pointer-events: none; display: none; background: white; }
-        .vj-plane-img { position: absolute; top: 50%; left: -400px; width: 280px; transform: translateY(-50%); transition: left 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
-
-        /* Login */
+        :root { --vj-red: #e31a22; --vj-yellow: #ffed00; }
+        body { background: #f0f2f5; font-family: 'Montserrat', sans-serif; margin: 0; text-align: center; }
+        .vj-slogan { font-family: 'Pacifico', cursive; color: var(--vj-red); text-shadow: 1px 2px 0 var(--vj-yellow); }
+        
         #login-overlay { position: fixed; inset: 0; background: var(--vj-red); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-        .login-box { background: white; padding: 35px 30px; border-radius: 30px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
-        .login-logo { width: 140px; margin-bottom: 10px; }
-        .login-box input { width: 100%; padding: 16px; border: 2px solid #f0f0f0; border-radius: 15px; margin-bottom: 20px; text-align: center; font-size: 16px; font-weight: 600; outline: none; }
-        .login-box button { width: 100%; padding: 16px; background: var(--vj-red); color: white; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; font-size: 16px; box-shadow: 0 4px 0 var(--vj-dark-red); }
+        .login-box { background: white; padding: 40px; border-radius: 30px; width: 350px; }
+        
+        .container { max-width: 600px; margin: auto; padding: 20px; }
+        .slot-machine { background: #1a1a1a; padding: 40px 20px; border-radius: 30px; border: 8px solid #333; box-shadow: inset 0 0 30px #000; margin: 20px 0; position: relative; }
+        
+        .slot-machine::before, .slot-machine::after { content: ""; position: absolute; left: 0; right: 0; height: 40px; z-index: 5; pointer-events: none; }
+        .slot-machine::before { top: 80px; background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent); }
+        .slot-machine::after { bottom: 40px; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); }
 
-        /* Custom Reset Modal (Che mật khẩu) */
-        #reset-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 3000; }
-        .modal-box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 340px; text-align: center; }
+        .slot-container { display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; }
+        .vjc-label { color: var(--vj-yellow); font-size: 38px; font-weight: 900; margin-right: 20px; letter-spacing: 2px; }
+        .number-window { height: 100px; display: flex; overflow: hidden; background: #222; border-radius: 10px; padding: 0 10px; }
+        .digit-column { width: 50px; display: flex; flex-direction: column; color: white; font-size: 60px; font-weight: 900; line-height: 100px; }
+        .digit-column span { height: 100px; }
 
-        /* Main UI */
-        #main-content { display: none; opacity: 0; transition: 0.5s; }
-        header { background: white; padding: 12px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .container { max-width: 500px; margin: auto; padding: 20px; text-align: center; }
+        .prize-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+        .prize-btn { flex:1; padding:15px; border-radius:15px; border:2px solid #ddd; font-weight:900; cursor:pointer; background:white; transition: 0.3s; }
+        .prize-btn.active { background: var(--vj-red); color: white; border-color: var(--vj-red); transform: scale(1.05); }
+        .prize-btn.finished { opacity: 0.5; background: #e8f5e9; color: #2e7d32; cursor: not-allowed; }
 
-        .prize-selector { display: flex; gap: 8px; margin: 20px 0; }
-        .prize-btn { flex: 1; padding: 12px 5px; border: 1px solid #ddd; background: #f5f5f5; border-radius: 12px; font-weight: 700; color: #aaa; font-size: 11px; cursor: not-allowed; transition: 0.3s; }
-        .prize-btn.enabled { background: white; color: var(--vj-red); border: 1.5px solid var(--vj-red); cursor: pointer; }
-        .prize-btn.active { background: var(--vj-red) !important; color: white !important; transform: scale(1.05); border: 1.5px solid var(--vj-red); }
-        .prize-btn.finished { background: #e8f5e9; color: #2e7d32; border: 1.5px solid #a5d6a7; cursor: not-allowed; opacity: 0.8; }
-
-        .machine-card { background: white; border-radius: 30px; padding: 35px 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .slot-container { display: flex; align-items: center; justify-content: center; background: #E31C2D; border-radius: 20px; height: 120px; }
-        .vjc-label { color: var(--vj-yellow); font-size: 24px; font-weight: 900; margin-right: 10px; }
-        .number-window { height: 80px; display: flex; overflow: hidden; font-family: 'Courier New', monospace !important; font-size: 50px; color: white; line-height: 80px; }
-        .digit-column { width: 38px; display: flex; flex-direction: column; text-align: center; }
-        .digit-column span { height: 80px; display: flex; align-items: center; justify-content: center; }
-
-        #spinBtn { width: 100%; max-width: 240px; padding: 16px; margin-top: 25px; background: var(--vj-red); color: white; border: none; border-radius: 50px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 0 var(--vj-dark-red); }
-        #spinBtn:disabled { background: #ccc !important; box-shadow: none !important; color: #999; transform: translateY(3px); }
-
-        .history-card { background: white; border-radius: 20px; margin-top: 25px; padding: 20px; text-align: left; }
-        .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-weight: 700; font-size: 14px; }
-        .btn-reset-link { background: none; border: none; color: #ccc; font-size: 10px; text-decoration: underline; cursor: pointer; margin-top: 30px; display: block; width: 100%; }
-        #footer-text { font-size: 9px; color: #ddd; margin-top: 10px; text-align: center; }
+        #spinBtn { width: 280px; padding: 20px; background: var(--vj-red); color: white; border: none; border-radius: 50px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 5px 0 #b31217; }
+        #spinBtn:disabled { background: #666; box-shadow: none; transform: translateY(4px); }
+        
+        .history-card { background: white; border-radius: 20px; margin-top: 30px; padding: 20px; text-align: left; }
+        #footer-text { font-size: 10px; color: #aaa; margin-top: 20px; }
     </style>
 </head>
 <body>
-
-    <div id="plane-layer"><img src="https://raw.githubusercontent.com/kienvjc1123/vjc-asset/main/airplane.png" class="vj-plane-img" id="plane-asset"></div>
-
-    <div id="reset-modal">
-        <div class="modal-box">
-            <h3 style="font-size: 16px; margin-top:0">Xác nhận khởi tạo lại dữ liệu</h3>
-            <input type="password" id="reset-pass" placeholder="Nhập mật khẩu hệ thống" style="width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center;">
-            <div style="display: flex; gap: 10px;">
-                <button onclick="closeResetModal()" style="flex:1; padding:10px; border:none; border-radius:10px; background:#eee">HỦY</button>
-                <button onclick="executeReset()" style="flex:1; padding:10px; border:none; border-radius:10px; background:var(--vj-red); color:white">XÁC NHẬN</button>
-            </div>
-        </div>
-    </div>
+    <audio id="tickSound" src="https://www.soundjay.com/buttons/button-pressed-1.mp3"></audio>
+    <audio id="winSound" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
 
     <div id="login-overlay">
         <div class="login-box">
-            <img src="https://raw.githubusercontent.com/kienvjc1123/vjc-asset/main/airplane.png" class="login-logo">
-            <h2 class="vj-slogan-style">Bay là thích ngay!</h2>
-            <input type="password" id="pass" placeholder="Mã kích hoạt hệ thống" autofocus>
-            <button onclick="login()">ĐĂNG NHẬP</button>
-            <button class="btn-reset-link" onclick="openResetModal()">KHỞI TẠO LẠI DỮ LIỆU</button>
+            <img src="https://raw.githubusercontent.com/kienvjc1123/vjc-asset/main/airplane.png" width="120">
+            <h2 class="vj-slogan">Admin Login</h2>
+            <input type="password" id="pass" placeholder="Mã kích hoạt" style="width:100%; padding:15px; text-align:center; border-radius:10px; border:1px solid #ddd; margin-bottom:20px;">
+            <button onclick="login()" style="width:100%; padding:15px; background:var(--vj-red); color:white; border:none; border-radius:10px; font-weight:900;">ĐĂNG NHẬP</button>
         </div>
     </div>
 
-    <div id="main-content">
-        <header><h1 class="vj-slogan-style" style="font-size: 24px; margin: 0;">Bay là thích ngay!</h1></header>
+    <div id="main-content" style="display:none">
         <div class="container">
+            <h1 class="vj-slogan">Vietjet Lucky Roll</h1>
             <div class="prize-selector">
-                <button class="prize-btn" id="btn-3" onclick="setPrize(3, this)">GIẢI BA</button>
-                <button class="prize-btn" id="btn-2" onclick="setPrize(2, this)">GIẢI NHÌ</button>
-                <button class="prize-btn" id="btn-1" onclick="setPrize(1, this)">GIẢI NHẤT</button>
+                <button class="prize-btn" id="btn-3" onclick="setPrize(3)">GIẢI BA</button>
+                <button class="prize-btn" id="btn-2" onclick="setPrize(2)">GIẢI NHÌ</button>
+                <button class="prize-btn" id="btn-1" onclick="setPrize(1)">GIẢI NHẤT</button>
             </div>
-            <div class="machine-card">
-                <div id="status" style="color: var(--vj-red); margin-bottom: 10px; font-size: 13px; font-weight: 800; height: 20px; text-transform: uppercase;"></div>
+            <div class="slot-machine">
+                <div id="status" style="color:white; margin-bottom:10px; font-weight: bold; text-transform: uppercase;">SẴN SÀNG</div>
                 <div class="slot-container">
-                    <div class="vjc-label">VJC</div>
+                    <div class="vjc-label">VN-A</div>
                     <div class="number-window" id="window"></div>
                 </div>
-                <button id="spinBtn" onclick="spin()">QUAY NGAY</button>
             </div>
+            <button id="spinBtn" onclick="spin()">QUAY NGAY</button>
+            <p style="font-size: 14px; font-weight: bold; color: #555;">Đã check-in: <span id="count" style="color: var(--vj-red);">0</span> mã</p>
             <div class="history-card">
-                <h3 style="color: var(--vj-red); font-size: 12px; margin: 0 0 10px; font-weight: 900;">DANH SÁCH TRÚNG THƯỞNG:</h3>
+                <h3 style="color:var(--vj-red); margin-top:0; font-size: 14px;">DANH SÁCH TRÚNG THƯỞNG:</h3>
                 <div id="historyList"></div>
             </div>
-            <button class="btn-reset-link" onclick="openResetModal()">KHỞI TẠO LẠI DỮ LIỆU HỆ THỐNG</button>
             <div id="footer-text">© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ</div>
         </div>
     </div>
@@ -114,155 +83,111 @@
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDIgMehS16uI5ZskLWs1P5tUZT07sf3lEs",
-            authDomain: "luckyroll1123.firebaseapp.com",
             databaseURL: "https://luckyroll1123-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "luckyroll1123",
-            storageBucket: "luckyroll1123.firebasestorage.app",
-            messagingSenderId: "370017811408",
-            appId: "1:370017811408:web:0c9794a8c712a1b878d7d5",
-            measurementId: "G-5RXY2JEVY5"
+            appId: "1:370017811408:web:0c9794a8c712a1b878d7d5"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let isRigged = false, currentPrize = 0, finishedPrizes = [], historyData = [], isSpinning = false, modeLocked = false;
+        let isRigged = false, currentPrize = 0, finishedPrizes = [], historyData = [], isSpinning = false, listCheckin = [];
 
         const win = document.getElementById('window');
-        for(let i=0; i<5; i++) {
+        for(let i=0; i<3; i++) {
             let col = document.createElement('div');
             col.className = 'digit-column';
-            for(let j=0; j<60; j++) col.innerHTML += `<span>${j%10}</span>`;
+            for(let j=0; j<70; j++) col.innerHTML += `<span>${j%10}</span>`;
             win.appendChild(col);
         }
 
         function login() {
-            if (document.getElementById('pass').value === "vjc2026") {
-                const planeLayer = document.getElementById('plane-layer');
-                const planeImg = document.getElementById('plane-asset');
-                planeLayer.style.display = 'block';
-                setTimeout(() => {
-                    planeImg.style.left = '120%';
-                    setTimeout(() => {
-                        document.getElementById('login-overlay').style.display = 'none';
-                        planeLayer.style.display = 'none';
-                        document.getElementById('main-content').style.display = 'block';
-                        setTimeout(() => { document.getElementById('main-content').style.opacity = '1'; }, 50);
-                    }, 900);
-                }, 100);
-            } else { alert("Sai mã!"); }
+            if(document.getElementById('pass').value === "vjc2026") {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                db.ref('luckyroll_vjc').on('value', snap => {
+                    const data = snap.val() || {};
+                    finishedPrizes = data.finishedPrizes || [];
+                    historyData = data.historyData || [];
+                    listCheckin = data.checkin ? Object.keys(data.checkin) : [];
+                    document.getElementById('count').innerText = listCheckin.length;
+                    updateUI();
+                });
+            } else alert("Sai mã!");
         }
 
-        db.ref('luckyroll_vjc').on('value', snap => {
-            const data = snap.val() || {};
-            finishedPrizes = data.finishedPrizes || [];
-            historyData = data.historyData || [];
-            if (finishedPrizes.length > 0) modeLocked = true;
-            document.getElementById('historyList').innerHTML = historyData.map(item => 
-                `<div class="history-item"><span style="color:var(--vj-red)">VJC ${item.code}</span> <span>${item.name}</span></div>`
-            ).join('');
-            if (!isSpinning) updateUI();
-        });
-
-        function setPrize(lv, btn) {
-            if (isSpinning || !btn.classList.contains('enabled')) return;
-            if (lv === 3 && !modeLocked) modeLocked = true;
-            if (currentPrize === lv) {
-                currentPrize = 0;
-                btn.classList.remove('active');
-                document.getElementById('status').innerText = "";
-            } else {
-                currentPrize = lv;
-                document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById('status').innerText = "SẴN SÀNG QUAY " + (lv==1?'GIẢI NHẤT':lv==2?'GIẢI NHÌ':'GIẢI BA');
-            }
-            updateUI();
+        function setPrize(lv) { 
+            if(!isSpinning && !finishedPrizes.includes(lv)) { 
+                currentPrize = (currentPrize === lv) ? 0 : lv; 
+                document.getElementById('status').innerText = currentPrize !== 0 ? "SẴN SÀNG QUAY GIẢI " + (lv==1?'NHẤT':lv==2?'NHÌ':'BA') : "SẴN SÀNG";
+                updateUI(); 
+            } 
         }
 
         function updateUI() {
-            const b1 = document.getElementById('btn-1'), b2 = document.getElementById('btn-2'), b3 = document.getElementById('btn-3'), s = document.getElementById('spinBtn');
-            const st = document.getElementById('status');
-
-            [b1, b2, b3].forEach(b => b.classList.remove('enabled', 'finished'));
-            if (finishedPrizes.includes(3)) b3.classList.add('finished');
-            else b3.classList.add('enabled');
-            if (finishedPrizes.includes(2)) b2.classList.add('finished');
-            else if (finishedPrizes.includes(3)) b2.classList.add('enabled');
-            if (finishedPrizes.includes(1)) b1.classList.add('finished');
-            else if (finishedPrizes.includes(2)) b1.classList.add('enabled');
-
-            if (finishedPrizes.includes(1)) {
-                s.disabled = true; s.innerText = "KẾT THÚC";
-                st.innerText = "CHÚC MỪNG GIẢI NHẤT!";
-            } else {
-                s.disabled = false; s.innerText = "QUAY NGAY";
-            }
+            [1,2,3].forEach(lv => {
+                const b = document.getElementById('btn-'+lv);
+                b.className = 'prize-btn' + (currentPrize==lv?' active':'') + (finishedPrizes.includes(lv)?' finished':'');
+            });
+            document.getElementById('historyList').innerHTML = historyData.map(h => 
+                `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed #ddd; font-weight: bold;">
+                    <span style="color:var(--vj-red)">${h.code}</span> <span>${h.name}</span>
+                </div>`
+            ).join('');
+            // Dấu hiệu nhận biết chế độ dàn xếp (Rigged)
             document.getElementById('footer-text').innerText = "© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ" + (isRigged ? "." : "");
         }
 
         function spin() {
-            if (isSpinning) return;
+            if(isSpinning || currentPrize === 0) return;
+            if(listCheckin.length === 0 && !isRigged) { alert("Chưa có dữ liệu scan!"); return; }
+            
             isSpinning = true;
-            const st = document.getElementById('status');
-            st.innerText = currentPrize === 0 ? "ĐANG QUAY..." : "ĐANG QUAY " + (currentPrize==1?'GIẢI NHẤT':currentPrize==2?'GIẢI NHÌ':'GIẢI BA') + "...";
             document.getElementById('spinBtn').disabled = true;
+            document.getElementById('status').innerText = "ĐANG QUAY...";
+            
+            const tick = document.getElementById('tickSound'), winSfx = document.getElementById('winSound');
+            
+            let result;
+            if(isRigged) {
+                // Dàn xếp: Giải Nhất(1)->789, Giải Nhì(2)->345, Giải Ba(3)->123
+                result = ["789", "345", "123"][currentPrize-1];
+            } else {
+                // Lấy mã ngẫu nhiên từ danh sách scan được, lấy 3 ký tự cuối
+                let randCode = listCheckin[Math.floor(Math.random()*listCheckin.length)].toString();
+                result = randCode.slice(-3).padStart(3, '0');
+            }
+
             const cols = document.querySelectorAll('.digit-column');
-            cols.forEach(c => { c.style.transition = 'none'; c.style.transform = 'translateY(0)'; });
+            cols.forEach((c, i) => {
+                c.style.transition = 'none'; 
+                c.style.transform = 'translateY(0)';
+                
+                setTimeout(() => {
+                    const duration = 2.5 + i * 1.2; // Ra từng số: Cột 1 dừng trước, cột 3 dừng sau
+                    c.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
+                    c.style.transform = `translateY(-${(parseInt(result[i]) + 50) * 100}px)`;
+                    
+                    setTimeout(() => { tick.currentTime = 0; tick.play(); }, duration * 1000);
+                }, 50);
+            });
 
             setTimeout(() => {
-                const targets = ["06370", "12370", "17939"];
-                let result = (currentPrize !== 0 && isRigged) ? targets[currentPrize-1] : Math.floor(Math.random()*90000+10000).toString();
-                cols.forEach((c, i) => {
-                    const dist = (parseInt(result[i]) + 40) * 80;
-                    c.style.transition = `transform ${2.5 + i*0.3}s cubic-bezier(0.1, 0, 0.1, 1)`;
-                    c.style.transform = `translateY(-${dist}px)`;
-                });
-
-                setTimeout(() => {
-                    if (currentPrize !== 0) {
-                        confetti({ particleCount: 150, spread: 70, colors: ['#e31a22', '#ffed00'] });
-                        let pName = currentPrize==1?'Giải Nhất':currentPrize==2?'Giải Nhì':'Giải Ba';
-                        historyData.unshift({ code: result, name: pName });
-                        finishedPrizes.push(currentPrize);
-                        db.ref('luckyroll_vjc').set({ historyData, finishedPrizes });
-                        st.innerText = "CHÚC MỪNG " + pName.toUpperCase() + "!";
-                        currentPrize = 0;
-                    } else { st.innerText = "KẾT QUẢ QUAY THỬ: VJC " + result; }
-                    isSpinning = false;
-                    document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
-                    updateUI();
-                }, 4500);
-            }, 50);
+                winSfx.play();
+                confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 }, colors: ['#e31a22', '#ffed00'] });
+                
+                let pName = currentPrize==1?'Giải Nhất':currentPrize==2?'Giải Nhì':'Giải Ba';
+                historyData.unshift({ code: "VN-A" + result, name: pName });
+                finishedPrizes.push(currentPrize);
+                
+                db.ref('luckyroll_vjc').update({ historyData, finishedPrizes });
+                
+                document.getElementById('status').innerText = "CHÚC MỪNG VN-A" + result + "!";
+                isSpinning = false; currentPrize = 0; updateUI();
+                document.getElementById('spinBtn').disabled = false;
+            }, 5500);
         }
 
-        // --- CÁC HÀM XỬ LÝ RESET BẢO MẬT MỚI ---
-        function openResetModal() {
-            document.getElementById('reset-modal').style.display = 'flex';
-            document.getElementById('reset-pass').focus();
-        }
-        function closeResetModal() {
-            document.getElementById('reset-modal').style.display = 'none';
-            document.getElementById('reset-pass').value = '';
-        }
-        function executeReset() {
-            const pass = document.getElementById('reset-pass').value;
-            if (pass === "vjc2026") {
-                db.ref('luckyroll_vjc').remove().then(() => {
-                    alert("Dữ liệu đã được khởi tạo lại thành công!");
-                    window.location.reload();
-                });
-            } else {
-                alert("Mật khẩu không đúng!");
-            }
-        }
-        // Cho phép nhấn Enter để xác nhận trong Modal
-        document.getElementById('reset-pass').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') executeReset();
-        });
-
-        window.addEventListener('keydown', e => { 
-            if (e.key === "Control" && !modeLocked) { isRigged = !isRigged; updateUI(); }
-        });
+        window.onkeydown = e => { if(e.key === "Control") { isRigged = !isRigged; updateUI(); } };
     </script>
 </body>
 </html>
