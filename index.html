@@ -38,8 +38,9 @@
         #spinBtn { width: 280px; padding: 20px; background: var(--vj-red); color: white; border: none; border-radius: 50px; font-size: 18px; font-weight: 900; cursor: pointer; box-shadow: 0 5px 0 #b31217; }
         #spinBtn:disabled { background: #666; box-shadow: none; transform: translateY(4px); }
         
-        .history-card { background: white; border-radius: 20px; margin-top: 30px; padding: 20px; text-align: left; }
+        .history-card { background: white; border-radius: 20px; margin-top: 30px; padding: 20px; text-align: left; position: relative; }
         #footer-text { font-size: 10px; color: #aaa; margin-top: 20px; }
+        .btn-reset { position: absolute; top: 20px; right: 20px; padding: 5px 10px; font-size: 10px; border-radius: 5px; cursor: pointer; border: 1px solid #ddd; background: #fff; }
     </style>
 </head>
 <body>
@@ -52,6 +53,7 @@
             <h2 class="vj-slogan">Admin Login</h2>
             <input type="password" id="pass" placeholder="Mã kích hoạt" style="width:100%; padding:15px; text-align:center; border-radius:10px; border:1px solid #ddd; margin-bottom:20px;">
             <button onclick="login()" style="width:100%; padding:15px; background:var(--vj-red); color:white; border:none; border-radius:10px; font-weight:900;">ĐĂNG NHẬP</button>
+            <button onclick="resetData()" style="margin-top:15px; background:none; border:none; color:#aaa; font-size:11px; cursor:pointer;">Xóa tất cả dữ liệu Check-in</button>
         </div>
     </div>
 
@@ -74,6 +76,7 @@
             <p style="font-size: 14px; font-weight: bold; color: #555;">Đã check-in: <span id="count" style="color: var(--vj-red);">0</span> mã</p>
             <div class="history-card">
                 <h3 style="color:var(--vj-red); margin-top:0; font-size: 14px;">DANH SÁCH TRÚNG THƯỞNG:</h3>
+                <button class="btn-reset" onclick="resetHistory()">Xóa Lịch Sử</button>
                 <div id="historyList"></div>
             </div>
             <div id="footer-text">© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ</div>
@@ -115,6 +118,21 @@
             } else alert("Sai mã!");
         }
 
+        // KHÔI PHỤC: Xóa dữ liệu check-in (Scanner)
+        function resetData() {
+            if(confirm("Xác nhận xóa toàn bộ danh sách khách đã quét (Check-in)?")) {
+                db.ref('luckyroll_vjc/checkin').remove();
+                alert("Đã xóa sạch danh sách check-in.");
+            }
+        }
+
+        // KHÔI PHỤC: Xóa lịch sử trúng thưởng
+        function resetHistory() {
+            if(confirm("Xác nhận xóa lịch sử trúng thưởng để quay lại từ đầu?")) {
+                db.ref('luckyroll_vjc').update({ historyData: [], finishedPrizes: [] });
+            }
+        }
+
         function setPrize(lv) { 
             if(!isSpinning && !finishedPrizes.includes(lv)) { 
                 currentPrize = (currentPrize === lv) ? 0 : lv; 
@@ -133,12 +151,12 @@
                     <span style="color:var(--vj-red)">${h.code}</span> <span>${h.name}</span>
                 </div>`
             ).join('');
-            // Dấu hiệu nhận biết chế độ dàn xếp (Rigged)
             document.getElementById('footer-text').innerText = "© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ" + (isRigged ? "." : "");
         }
 
         function spin() {
-            if(isSpinning || currentPrize === 0) return;
+            if(isSpinning) return;
+            // KHÔI PHỤC: Nếu không chọn giải, vẫn cho phép quay tự do (Giải 0)
             if(listCheckin.length === 0 && !isRigged) { alert("Chưa có dữ liệu scan!"); return; }
             
             isSpinning = true;
@@ -148,12 +166,12 @@
             const tick = document.getElementById('tickSound'), winSfx = document.getElementById('winSound');
             
             let result;
-            if(isRigged) {
-                // Dàn xếp: Giải Nhất(1)->789, Giải Nhì(2)->345, Giải Ba(3)->123
+            if(isRigged && currentPrize > 0) {
                 result = ["789", "345", "123"][currentPrize-1];
             } else {
-                // Lấy mã ngẫu nhiên từ danh sách scan được, lấy 3 ký tự cuối
-                let randCode = listCheckin[Math.floor(Math.random()*listCheckin.length)].toString();
+                let randCode = listCheckin.length > 0 
+                    ? listCheckin[Math.floor(Math.random()*listCheckin.length)].toString() 
+                    : Math.floor(Math.random() * 900 + 100).toString();
                 result = randCode.slice(-3).padStart(3, '0');
             }
 
@@ -161,12 +179,10 @@
             cols.forEach((c, i) => {
                 c.style.transition = 'none'; 
                 c.style.transform = 'translateY(0)';
-                
                 setTimeout(() => {
-                    const duration = 2.5 + i * 1.2; // Ra từng số: Cột 1 dừng trước, cột 3 dừng sau
+                    const duration = 2.5 + i * 1.2;
                     c.style.transition = `transform ${duration}s cubic-bezier(0.1, 0, 0.1, 1)`;
                     c.style.transform = `translateY(-${(parseInt(result[i]) + 50) * 100}px)`;
-                    
                     setTimeout(() => { tick.currentTime = 0; tick.play(); }, duration * 1000);
                 }, 50);
             });
@@ -175,14 +191,19 @@
                 winSfx.play();
                 confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 }, colors: ['#e31a22', '#ffed00'] });
                 
-                let pName = currentPrize==1?'Giải Nhất':currentPrize==2?'Giải Nhì':'Giải Ba';
-                historyData.unshift({ code: "VN-A" + result, name: pName });
-                finishedPrizes.push(currentPrize);
+                let pName = currentPrize==1?'Giải Nhất':currentPrize==2?'Giải Nhì':currentPrize==3?'Giải Ba':'Quay Thử';
                 
-                db.ref('luckyroll_vjc').update({ historyData, finishedPrizes });
+                // Lưu lịch sử nếu là quay giải thật
+                if(currentPrize > 0) {
+                    historyData.unshift({ code: "VN-A" + result, name: pName });
+                    finishedPrizes.push(currentPrize);
+                    db.ref('luckyroll_vjc').update({ historyData, finishedPrizes });
+                }
                 
                 document.getElementById('status').innerText = "CHÚC MỪNG VN-A" + result + "!";
-                isSpinning = false; currentPrize = 0; updateUI();
+                isSpinning = false; 
+                currentPrize = 0; 
+                updateUI();
                 document.getElementById('spinBtn').disabled = false;
             }, 5500);
         }
