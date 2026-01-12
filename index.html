@@ -124,6 +124,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        // Nguồn dữ liệu đầy đủ
         const fullPool = ["14039", "11389", "12370", "12552", "17817", "17939", "6370", "12190", "14124", "12981", "3638", "4776", "10657", "12980", "8580", "9299", "0227", "14141", "17529", "17963", "2385", "12761", "13352", "12126", "0756", "11064", "11065", "11772", "12379", "12802", "13964", "13992", "14148", "16784", "17824", "18453", "2656", "6316", "6532", "10073", "12380", "11318", "11472", "1803", "15270", "8265", "8746", "9017", "11104", "11207", "11228", "11618", "12278", "6896", "9018", "5849", "9604", "1822", "0060", "7159", "7867", "0908", "11108", "11959", "1419", "2875", "9420"];
         const specialRiggedPool = ["12190", "11389", "12552"];
         const limits = { 3: 3, 2: 2, 1: 1, 0: 1 };
@@ -132,6 +133,7 @@
         let counters = { 3: 0, 2: 0, 1: 0, 0: 0 };
         let historyData = [];
 
+        // Khởi tạo máy quay
         const win = document.getElementById('window');
         for(let i=0; i<5; i++) {
             let col = document.createElement('div');
@@ -157,11 +159,16 @@
             } else { alert("Sai mã!"); }
         }
 
-        db.ref('luckyroll_final_v5').on('value', snap => {
+        // Lắng nghe dữ liệu từ Firebase
+        db.ref('luckyroll_final_v8').on('value', snap => {
             const data = snap.val() || {};
             historyData = data.history || [];
             counters = data.counters || { 3: 0, 2: 0, 1: 0, 0: 0 };
+            
+            // Khi history rỗng (sau khi Reset), danh sách quay sẽ tự động đầy đủ lại
             if(historyData.length > 0) isStarted = true;
+            else isStarted = false; 
+            
             updateUI();
         });
 
@@ -169,7 +176,6 @@
             if (isSpinning) return;
             if (counters[lv] >= limits[lv]) return;
             
-            // Check thứ tự bắt buộc
             if (lv === 2 && counters[3] < 3) return alert("Cần hoàn thành Giải Ba trước!");
             if (lv === 1 && counters[2] < 2) return alert("Cần hoàn thành Giải Nhì trước!");
             if (lv === 0 && counters[1] < 1) return alert("Cần hoàn thành Giải Nhất trước!");
@@ -179,7 +185,6 @@
             document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + lv).classList.add('active');
             
-            const names = { 3: "GIẢI BA", 2: "GIẢI NHÌ", 1: "GIẢI NHẤT", 0: "GIẢI ĐẶC BIỆT" };
             const remain = limits[lv] - counters[lv];
             document.getElementById('status').innerText = `CÒN ${remain} GIẢI, MỜI QUAY TIẾP`;
             document.getElementById('spinBtn').innerText = "QUAY NGAY";
@@ -190,12 +195,11 @@
             
             Object.keys(btns).forEach(lv => {
                 btns[lv].classList.remove('unlocked', 'finished');
-                const remain = limits[lv] - counters[lv];
+                const remain = Math.max(0, limits[lv] - counters[lv]);
                 document.getElementById('count-' + lv).innerText = `(Còn ${remain})`;
                 if (counters[lv] >= limits[lv]) btns[lv].classList.add('finished');
             });
 
-            // Unlock logic
             if (counters[3] < 3) btns[3].classList.add('unlocked');
             else if (counters[2] < 2) btns[2].classList.add('unlocked');
             else if (counters[1] < 1) btns[1].classList.add('unlocked');
@@ -230,26 +234,27 @@
             cols.forEach(c => { c.style.transition = 'none'; c.style.transform = 'translateY(0)'; });
 
             setTimeout(() => {
-                let result;
+                let rawResult;
                 const wonCodes = historyData.map(h => h.code);
+                
+                // Lọc danh sách khả dụng (loại trừ các mã đã trúng trong session này)
                 const availablePool = fullPool.filter(code => !wonCodes.includes(code));
 
                 if (selectedPrize !== null) {
-                    // Quay thật
                     if (selectedPrize === 0 && isRigged) {
                         const availRigged = specialRiggedPool.filter(c => !wonCodes.includes(c));
-                        result = availRigged.length > 0 ? availRigged[Math.floor(Math.random() * availRigged.length)] : availablePool[Math.floor(Math.random() * availablePool.length)];
+                        rawResult = availRigged.length > 0 ? availRigged[Math.floor(Math.random() * availRigged.length)] : availablePool[Math.floor(Math.random() * availablePool.length)];
                     } else {
-                        result = availablePool[Math.floor(Math.random() * availablePool.length)];
+                        rawResult = availablePool[Math.floor(Math.random() * availablePool.length)];
                     }
                 } else {
-                    // Quay thử ngẫu nhiên hoàn toàn
-                    result = Math.floor(Math.random() * 90000 + 10000).toString();
+                    rawResult = Math.floor(Math.random() * 90000 + 10000).toString();
                 }
 
-                const finalCode = result.padStart(5, '0');
+                const displayCode = rawResult.padStart(5, '0');
+
                 cols.forEach((c, i) => {
-                    const dist = (parseInt(finalCode[i]) + 40) * 80;
+                    const dist = (parseInt(displayCode[i]) + 40) * 80;
                     c.style.transition = `transform ${2.5 + i * 0.3}s cubic-bezier(0.1, 0, 0.1, 1)`;
                     c.style.transform = `translateY(-${dist}px)`;
                 });
@@ -259,20 +264,18 @@
                         confetti({ particleCount: 150, spread: 70, colors: ['#e31a22', '#ffed00'] });
                         const names = { 3: "Giải Ba", 2: "Giải Nhì", 1: "Giải Nhất", 0: "Giải Đặc Biệt" };
                         
-                        historyData.unshift({ code: result, name: names[selectedPrize] });
+                        historyData.unshift({ code: rawResult, name: names[selectedPrize] });
                         counters[selectedPrize]++;
                         
-                        db.ref('luckyroll_final_v5').update({ history: historyData, counters: counters });
+                        db.ref('luckyroll_final_v8').update({ history: historyData, counters: counters });
+                        document.getElementById('status').innerText = "CHÚC MỪNG VJC " + rawResult + "!";
                         
-                        document.getElementById('status').innerText = "CHÚC MỪNG " + names[selectedPrize].toUpperCase() + "!";
-                        
-                        // Nếu đã quay đủ số lượng của giải đó thì reset lựa chọn để về mode quay thử
                         if(counters[selectedPrize] >= limits[selectedPrize]) {
                             selectedPrize = null;
                             document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
                         }
                     } else {
-                        document.getElementById('status').innerText = "KẾT QUẢ QUAY THỬ: VJC " + finalCode;
+                        document.getElementById('status').innerText = "KẾT QUẢ QUAY THỬ: VJC " + displayCode;
                     }
                     
                     isSpinning = false;
@@ -287,9 +290,14 @@
             document.getElementById('reset-modal').style.display = 'none';
             document.getElementById('reset-pass').value = '';
         }
+        
         function executeReset() {
             if (document.getElementById('reset-pass').value === "vjc2026") {
-                db.ref('luckyroll_final_v5').remove().then(() => location.reload());
+                // Xóa Database -> historyData về [] -> fullPool được hồi lại đầy đủ ở lượt spin tiếp theo
+                db.ref('luckyroll_final_v8').remove().then(() => {
+                    alert("Đã khôi phục toàn bộ danh sách quay!");
+                    location.reload();
+                });
             } else alert("Mật khẩu admin sai!");
         }
 
