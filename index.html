@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vietjet Air - Lucky Roll 2026</title>
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/kienvjc1123/vjc-asset/main/airplane.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Pacifico&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
@@ -26,12 +24,16 @@
         #login-overlay { position: fixed; inset: 0; background: var(--vj-red); display: flex; align-items: center; justify-content: center; z-index: 2000; }
         .login-box { background: white; padding: 35px 30px; border-radius: 30px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
         .login-logo { width: 140px; margin-bottom: 10px; }
-        .login-box input { width: 100%; padding: 16px; border: 2px solid #f0f0f0; border-radius: 15px; margin-bottom: 20px; text-align: center; font-size: 16px; font-weight: 600; outline: none; }
-        .login-box button { width: 100%; padding: 16px; background: var(--vj-red); color: white; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; font-size: 16px; box-shadow: 0 4px 0 var(--vj-dark-red); }
+        .login-box input { width: 100%; padding: 16px; border: 2px solid #f0f0f0; border-radius: 15px; margin-bottom: 15px; text-align: center; font-size: 16px; font-weight: 600; outline: none; }
+        .login-box button { width: 100%; padding: 16px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; font-size: 16px; transition: 0.3s; margin-bottom: 10px; }
+        .btn-login { background: var(--vj-red); color: white; box-shadow: 0 4px 0 var(--vj-dark-red); }
+        .btn-reset-main { background: #333; color: white; box-shadow: 0 4px 0 #000; }
 
-        /* Reset Modal */
-        #reset-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 3000; }
-        .modal-box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 340px; text-align: center; }
+        /* Reset Modal Xịn */
+        #reset-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; }
+        .modal-box { background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 340px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.3); border: 2px solid var(--vj-red); }
+        .modal-box h3 { margin: 0 0 20px; color: var(--vj-red); font-weight: 900; }
+        .modal-box input { width: 100%; padding: 15px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 18px; letter-spacing: 5px; }
 
         /* Main UI */
         #main-content { display: none; opacity: 0; transition: 0.5s; }
@@ -39,10 +41,10 @@
         .container { max-width: 500px; margin: auto; padding: 20px; text-align: center; }
 
         .prize-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 20px 0; }
-        .prize-btn { padding: 12px 2px; border: 1px solid #ddd; background: #f5f5f5; border-radius: 12px; font-weight: 700; color: #aaa; font-size: 10px; cursor: pointer; transition: 0.3s; }
-        .prize-btn.active { background: var(--vj-red) !important; color: white !important; transform: scale(1.05); border: 1.5px solid var(--vj-red); }
-        .prize-btn.finished { background: #e8f5e9; color: #2e7d32; border: 1.5px solid #a5d6a7; cursor: not-allowed; opacity: 0.8; }
-        #btn-0 { border: 1.5px solid gold; }
+        .prize-btn { padding: 12px 2px; border: 1px solid #ddd; background: #f5f5f5; border-radius: 12px; font-weight: 700; color: #ccc; font-size: 10px; cursor: not-allowed; transition: 0.3s; }
+        .prize-btn.unlocked { background: white; color: var(--vj-red); border: 1.5px solid var(--vj-red); cursor: pointer; }
+        .prize-btn.active { background: var(--vj-red) !important; color: white !important; transform: scale(1.05); }
+        .prize-btn.finished { background: #e8f5e9; color: #2e7d32; border: 1.5px solid #a5d6a7; opacity: 0.8; }
 
         .machine-card { background: white; border-radius: 30px; padding: 35px 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .slot-container { display: flex; align-items: center; justify-content: center; background: #E31C2D; border-radius: 20px; height: 120px; }
@@ -53,6 +55,7 @@
 
         #spinBtn { width: 100%; max-width: 240px; padding: 16px; margin-top: 25px; background: var(--vj-red); color: white; border: none; border-radius: 50px; font-size: 15px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 0 var(--vj-dark-red); }
         #spinBtn:disabled { background: #ccc !important; box-shadow: none !important; color: #999; transform: translateY(3px); }
+        #spinBtn.ended { background: #000 !important; box-shadow: 0 5px 0 #333 !important; cursor: not-allowed; }
 
         .history-card { background: white; border-radius: 20px; margin-top: 25px; padding: 20px; text-align: left; }
         .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-weight: 700; font-size: 14px; }
@@ -66,11 +69,11 @@
 
     <div id="reset-modal">
         <div class="modal-box">
-            <h3 style="font-size: 16px; margin-top:0">Xác nhận khởi tạo lại dữ liệu</h3>
-            <input type="password" id="reset-pass" placeholder="Mã bảo mật" style="width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center;">
+            <h3>ADMIN RESET</h3>
+            <input type="password" id="reset-pass" placeholder="••••••">
             <div style="display: flex; gap: 10px;">
-                <button onclick="closeResetModal()" style="flex:1; padding:10px; border:none; border-radius:10px; background:#eee">HỦY</button>
-                <button onclick="executeReset()" style="flex:1; padding:10px; border:none; border-radius:10px; background:var(--vj-red); color:white">XÁC NHẬN</button>
+                <button onclick="closeResetModal()" style="flex:1; padding:12px; border:none; border-radius:12px; background:#f0f0f0; font-weight:700">HỦY</button>
+                <button onclick="executeReset()" style="flex:1; padding:12px; border:none; border-radius:12px; background:var(--vj-red); color:white; font-weight:700">XÁC NHẬN</button>
             </div>
         </div>
     </div>
@@ -78,9 +81,10 @@
     <div id="login-overlay">
         <div class="login-box">
             <img src="https://raw.githubusercontent.com/kienvjc1123/vjc-asset/main/airplane.png" class="login-logo">
-            <h2 class="vj-slogan-style">Bay là thích ngay!</h2>
+            <h2 class="vj-slogan-style">Vietjet Lucky Roll</h2>
             <input type="password" id="pass" placeholder="Mã kích hoạt hệ thống" autofocus>
-            <button onclick="login()">ĐĂNG NHẬP</button>
+            <button class="btn-login" onclick="login()">ĐĂNG NHẬP</button>
+            <button class="btn-reset-main" onclick="openResetModal()">KHỞI TẠO DỮ LIỆU</button>
         </div>
     </div>
 
@@ -88,10 +92,10 @@
         <header><h1 class="vj-slogan-style" style="font-size: 24px; margin: 0;">Bay là thích ngay!</h1></header>
         <div class="container">
             <div class="prize-selector">
-                <button class="prize-btn" id="btn-3" onclick="selectPrize(3)">GIẢI BA (3)</button>
-                <button class="prize-btn" id="btn-2" onclick="selectPrize(2)">GIẢI NHÌ (2)</button>
-                <button class="prize-btn" id="btn-1" onclick="selectPrize(1)">GIẢI NHẤT (1)</button>
-                <button class="prize-btn" id="btn-0" onclick="selectPrize(0)">ĐẶC BIỆT</button>
+                <button class="prize-btn" id="btn-3" onclick="selectPrize(3)">GIẢI BA</button>
+                <button class="prize-btn" id="btn-2" onclick="selectPrize(2)">GIẢI NHÌ</button>
+                <button class="prize-btn" id="btn-1" onclick="selectPrize(1)">GIẢI NHẤT</button>
+                <button class="prize-btn" id="btn-0" onclick="selectPrize(0)" style="border: 1px solid gold;">ĐẶC BIỆT</button>
             </div>
             <div class="machine-card">
                 <div id="status" style="color: var(--vj-red); margin-bottom: 10px; font-size: 13px; font-weight: 800; height: 20px; text-transform: uppercase;"></div>
@@ -99,13 +103,13 @@
                     <div class="vjc-label">VJC</div>
                     <div class="number-window" id="window"></div>
                 </div>
-                <button id="spinBtn" onclick="spin()">QUAY NGAY</button>
+                <button id="spinBtn" onclick="spin()">CHỌN GIẢI ĐỂ QUAY</button>
             </div>
             <div class="history-card">
                 <h3 style="color: var(--vj-red); font-size: 12px; margin: 0 0 10px; font-weight: 900;">DANH SÁCH TRÚNG THƯỞNG:</h3>
                 <div id="historyList"></div>
             </div>
-            <button class="btn-reset-link" onclick="openResetModal()">KHỞI TẠO LẠI DỮ LIỆU</button>
+            <button class="btn-reset-link" onclick="openResetModal()">RESET SYSTEM</button>
             <div id="footer-text">© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ</div>
         </div>
     </div>
@@ -123,11 +127,10 @@
         const fullPool = ["14039", "11389", "12370", "12552", "17817", "17939", "6370", "12190", "14124", "12981", "3638", "4776", "10657", "12980", "8580", "9299", "0227", "14141", "17529", "17963", "2385", "12761", "13352", "12126", "0756", "11064", "11065", "11772", "12379", "12802", "13964", "13992", "14148", "16784", "17824", "18453", "2656", "6316", "6532", "10073", "12380", "11318", "11472", "1803", "15270", "8265", "8746", "9017", "11104", "11207", "11228", "11618", "12278", "6896", "9018", "5849", "9604", "1822", "0060", "7159", "7867", "0908", "11108", "11959", "1419", "2875", "9420"];
         const specialRiggedPool = ["12190", "11389", "12552"];
 
-        let isRigged = false, selectedPrize = null, isSpinning = false;
+        let isRigged = false, selectedPrize = null, isSpinning = false, isStarted = false;
         let counters = { 3: 0, 2: 0, 1: 0, 0: 0 };
         let historyData = [];
 
-        // Build columns
         const win = document.getElementById('window');
         for(let i=0; i<5; i++) {
             let col = document.createElement('div');
@@ -153,32 +156,57 @@
             } else { alert("Sai mã!"); }
         }
 
-        db.ref('luckyroll_final_v3').on('value', snap => {
+        db.ref('luckyroll_final_v4').on('value', snap => {
             const data = snap.val() || {};
             historyData = data.history || [];
             counters = data.counters || { 3: 0, 2: 0, 1: 0, 0: 0 };
+            if(historyData.length > 0) isStarted = true;
             updateUI();
         });
 
         function selectPrize(lv) {
             if (isSpinning) return;
-            const limits = { 3: 3, 2: 2, 1: 1, 0: 1 };
-            if (counters[lv] >= limits[lv]) return;
             
+            // Logic thứ tự bắt buộc
+            if (lv === 2 && counters[3] < 3) return alert("Cần hoàn thành Giải Ba trước!");
+            if (lv === 1 && counters[2] < 2) return alert("Cần hoàn thành Giải Nhì trước!");
+            if (lv === 0 && counters[1] < 1) return alert("Cần hoàn thành Giải Nhất trước!");
+
+            isStarted = true; // Khi đã chọn giải để chuẩn bị quay, khóa mode diễn
             selectedPrize = lv;
             document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + lv).classList.add('active');
             
             const names = { 3: "GIẢI BA", 2: "GIẢI NHÌ", 1: "GIẢI NHẤT", 0: "GIẢI ĐẶC BIỆT" };
             document.getElementById('status').innerText = "SẴN SÀNG QUAY " + names[lv];
+            document.getElementById('spinBtn').innerText = "QUAY NGAY";
+            document.getElementById('spinBtn').disabled = false;
         }
 
         function updateUI() {
             const limits = { 3: 3, 2: 2, 1: 1, 0: 1 };
-            [0, 1, 2, 3].forEach(lv => {
-                const btn = document.getElementById('btn-' + lv);
-                btn.classList.toggle('finished', counters[lv] >= limits[lv]);
+            const btns = { 3: document.getElementById('btn-3'), 2: document.getElementById('btn-2'), 1: document.getElementById('btn-1'), 0: document.getElementById('btn-0') };
+            
+            // Xử lý trạng thái nút chọn giải
+            Object.keys(btns).forEach(lv => {
+                btns[lv].classList.remove('unlocked', 'finished');
+                if (counters[lv] >= limits[lv]) btns[lv].classList.add('finished');
             });
+
+            // Unlock theo thứ tự
+            if (counters[3] < 3) btns[3].classList.add('unlocked');
+            else if (counters[2] < 2) btns[2].classList.add('unlocked');
+            else if (counters[1] < 1) btns[1].classList.add('unlocked');
+            else if (counters[0] < 1) btns[0].classList.add('unlocked');
+
+            // Xử lý nút quay khi kết thúc toàn bộ
+            const sBtn = document.getElementById('spinBtn');
+            if (counters[0] >= 1) {
+                sBtn.innerText = "KẾT THÚC";
+                sBtn.classList.add('ended');
+                sBtn.disabled = true;
+                document.getElementById('status').innerText = "SỰ KIỆN ĐÃ KẾT THÚC";
+            }
 
             document.getElementById('historyList').innerHTML = historyData.map(h => 
                 `<div class="history-item"><span style="color:var(--vj-red)">VJC ${h.code}</span> <span>${h.name}</span></div>`
@@ -223,28 +251,38 @@
                     historyData.unshift({ code: result, name: names[selectedPrize] });
                     counters[selectedPrize]++;
                     
-                    db.ref('luckyroll_final_v3').update({ history: historyData, counters: counters });
+                    db.ref('luckyroll_final_v4').update({ history: historyData, counters: counters });
                     
                     isSpinning = false;
-                    const lastWinner = names[selectedPrize].toUpperCase();
                     selectedPrize = null;
                     document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
-                    document.getElementById('status').innerText = "CHÚC MỪNG " + lastWinner + "!";
-                    document.getElementById('spinBtn').disabled = false;
+                    document.getElementById('spinBtn').innerText = "CHỌN GIẢI TIẾP THEO";
+                    updateUI();
                 }, 4500);
             }, 50);
         }
 
         function openResetModal() { document.getElementById('reset-modal').style.display = 'flex'; }
-        function closeResetModal() { document.getElementById('reset-modal').style.display = 'none'; }
+        function closeResetModal() { 
+            document.getElementById('reset-modal').style.display = 'none';
+            document.getElementById('reset-pass').value = '';
+        }
         function executeReset() {
             if (document.getElementById('reset-pass').value === "vjc2026") {
-                db.ref('luckyroll_final_v3').remove().then(() => location.reload());
-            } else alert("Sai mã!");
+                db.ref('luckyroll_final_v4').remove().then(() => location.reload());
+            } else alert("Mật khẩu admin sai!");
         }
 
+        // Bật mode trước khi bắt đầu. Khi đã chọn giải hoặc có lịch sử, không đổi mode được nữa.
         window.addEventListener('keydown', e => { 
-            if (e.key === "Control") { isRigged = !isRigged; updateUI(); } 
+            if (e.key === "Control") {
+                if (isStarted) {
+                    console.log("Hệ thống đã bắt đầu, không thể đổi mode!");
+                    return;
+                }
+                isRigged = !isRigged; 
+                updateUI(); 
+            } 
         });
     </script>
 </body>
