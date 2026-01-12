@@ -29,7 +29,7 @@
         .btn-login { background: var(--vj-red); color: white; box-shadow: 0 4px 0 var(--vj-dark-red); }
         .btn-reset-main { background: #333; color: white; box-shadow: 0 4px 0 #000; }
 
-        /* Reset Modal Xịn */
+        /* Reset Modal */
         #reset-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; }
         .modal-box { background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 340px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.3); border: 2px solid var(--vj-red); }
         .modal-box h3 { margin: 0 0 20px; color: var(--vj-red); font-weight: 900; }
@@ -41,10 +41,10 @@
         .container { max-width: 500px; margin: auto; padding: 20px; text-align: center; }
 
         .prize-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 20px 0; }
-        .prize-btn { padding: 12px 2px; border: 1px solid #ddd; background: #f5f5f5; border-radius: 12px; font-weight: 700; color: #ccc; font-size: 10px; cursor: not-allowed; transition: 0.3s; }
+        .prize-btn { padding: 10px 2px; border: 1px solid #ddd; background: #f5f5f5; border-radius: 12px; font-weight: 700; color: #ccc; font-size: 9px; cursor: not-allowed; transition: 0.3s; line-height: 1.2; }
         .prize-btn.unlocked { background: white; color: var(--vj-red); border: 1.5px solid var(--vj-red); cursor: pointer; }
         .prize-btn.active { background: var(--vj-red) !important; color: white !important; transform: scale(1.05); }
-        .prize-btn.finished { background: #e8f5e9; color: #2e7d32; border: 1.5px solid #a5d6a7; opacity: 0.8; }
+        .prize-btn.finished { background: #333 !important; color: #777 !important; border: 1.5px solid #000 !important; cursor: not-allowed; opacity: 1; }
 
         .machine-card { background: white; border-radius: 30px; padding: 35px 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
         .slot-container { display: flex; align-items: center; justify-content: center; background: #E31C2D; border-radius: 20px; height: 120px; }
@@ -92,18 +92,18 @@
         <header><h1 class="vj-slogan-style" style="font-size: 24px; margin: 0;">Bay là thích ngay!</h1></header>
         <div class="container">
             <div class="prize-selector">
-                <button class="prize-btn" id="btn-3" onclick="selectPrize(3)">GIẢI BA</button>
-                <button class="prize-btn" id="btn-2" onclick="selectPrize(2)">GIẢI NHÌ</button>
-                <button class="prize-btn" id="btn-1" onclick="selectPrize(1)">GIẢI NHẤT</button>
-                <button class="prize-btn" id="btn-0" onclick="selectPrize(0)" style="border: 1px solid gold;">ĐẶC BIỆT</button>
+                <button class="prize-btn" id="btn-3" onclick="selectPrize(3)">GIẢI BA<br><span id="count-3"></span></button>
+                <button class="prize-btn" id="btn-2" onclick="selectPrize(2)">GIẢI NHÌ<br><span id="count-2"></span></button>
+                <button class="prize-btn" id="btn-1" onclick="selectPrize(1)">GIẢI NHẤT<br><span id="count-1"></span></button>
+                <button class="prize-btn" id="btn-0" onclick="selectPrize(0)" style="border: 1px solid gold;">ĐẶC BIỆT<br><span id="count-0"></span></button>
             </div>
             <div class="machine-card">
-                <div id="status" style="color: var(--vj-red); margin-bottom: 10px; font-size: 13px; font-weight: 800; height: 20px; text-transform: uppercase;"></div>
+                <div id="status" style="color: var(--vj-red); margin-bottom: 10px; font-size: 13px; font-weight: 800; height: 20px; text-transform: uppercase;">MỜI QUAY THỬ</div>
                 <div class="slot-container">
                     <div class="vjc-label">VJC</div>
                     <div class="number-window" id="window"></div>
                 </div>
-                <button id="spinBtn" onclick="spin()">CHỌN GIẢI ĐỂ QUAY</button>
+                <button id="spinBtn" onclick="spin()">QUAY THỬ</button>
             </div>
             <div class="history-card">
                 <h3 style="color: var(--vj-red); font-size: 12px; margin: 0 0 10px; font-weight: 900;">DANH SÁCH TRÚNG THƯỞNG:</h3>
@@ -126,6 +126,7 @@
 
         const fullPool = ["14039", "11389", "12370", "12552", "17817", "17939", "6370", "12190", "14124", "12981", "3638", "4776", "10657", "12980", "8580", "9299", "0227", "14141", "17529", "17963", "2385", "12761", "13352", "12126", "0756", "11064", "11065", "11772", "12379", "12802", "13964", "13992", "14148", "16784", "17824", "18453", "2656", "6316", "6532", "10073", "12380", "11318", "11472", "1803", "15270", "8265", "8746", "9017", "11104", "11207", "11228", "11618", "12278", "6896", "9018", "5849", "9604", "1822", "0060", "7159", "7867", "0908", "11108", "11959", "1419", "2875", "9420"];
         const specialRiggedPool = ["12190", "11389", "12552"];
+        const limits = { 3: 3, 2: 2, 1: 1, 0: 1 };
 
         let isRigged = false, selectedPrize = null, isSpinning = false, isStarted = false;
         let counters = { 3: 0, 2: 0, 1: 0, 0: 0 };
@@ -156,7 +157,7 @@
             } else { alert("Sai mã!"); }
         }
 
-        db.ref('luckyroll_final_v4').on('value', snap => {
+        db.ref('luckyroll_final_v5').on('value', snap => {
             const data = snap.val() || {};
             historyData = data.history || [];
             counters = data.counters || { 3: 0, 2: 0, 1: 0, 0: 0 };
@@ -166,46 +167,49 @@
 
         function selectPrize(lv) {
             if (isSpinning) return;
+            if (counters[lv] >= limits[lv]) return;
             
-            // Logic thứ tự bắt buộc
+            // Check thứ tự bắt buộc
             if (lv === 2 && counters[3] < 3) return alert("Cần hoàn thành Giải Ba trước!");
             if (lv === 1 && counters[2] < 2) return alert("Cần hoàn thành Giải Nhì trước!");
             if (lv === 0 && counters[1] < 1) return alert("Cần hoàn thành Giải Nhất trước!");
 
-            isStarted = true; // Khi đã chọn giải để chuẩn bị quay, khóa mode diễn
+            isStarted = true;
             selectedPrize = lv;
             document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + lv).classList.add('active');
             
             const names = { 3: "GIẢI BA", 2: "GIẢI NHÌ", 1: "GIẢI NHẤT", 0: "GIẢI ĐẶC BIỆT" };
-            document.getElementById('status').innerText = "SẴN SÀNG QUAY " + names[lv];
+            const remain = limits[lv] - counters[lv];
+            document.getElementById('status').innerText = `CÒN ${remain} GIẢI, MỜI QUAY TIẾP`;
             document.getElementById('spinBtn').innerText = "QUAY NGAY";
-            document.getElementById('spinBtn').disabled = false;
         }
 
         function updateUI() {
-            const limits = { 3: 3, 2: 2, 1: 1, 0: 1 };
             const btns = { 3: document.getElementById('btn-3'), 2: document.getElementById('btn-2'), 1: document.getElementById('btn-1'), 0: document.getElementById('btn-0') };
             
-            // Xử lý trạng thái nút chọn giải
             Object.keys(btns).forEach(lv => {
                 btns[lv].classList.remove('unlocked', 'finished');
+                const remain = limits[lv] - counters[lv];
+                document.getElementById('count-' + lv).innerText = `(Còn ${remain})`;
                 if (counters[lv] >= limits[lv]) btns[lv].classList.add('finished');
             });
 
-            // Unlock theo thứ tự
+            // Unlock logic
             if (counters[3] < 3) btns[3].classList.add('unlocked');
             else if (counters[2] < 2) btns[2].classList.add('unlocked');
             else if (counters[1] < 1) btns[1].classList.add('unlocked');
             else if (counters[0] < 1) btns[0].classList.add('unlocked');
 
-            // Xử lý nút quay khi kết thúc toàn bộ
             const sBtn = document.getElementById('spinBtn');
             if (counters[0] >= 1) {
                 sBtn.innerText = "KẾT THÚC";
                 sBtn.classList.add('ended');
                 sBtn.disabled = true;
                 document.getElementById('status').innerText = "SỰ KIỆN ĐÃ KẾT THÚC";
+            } else if (selectedPrize === null) {
+                sBtn.innerText = "QUAY THỬ";
+                document.getElementById('status').innerText = isStarted ? "MỜI CHỌN GIẢI TIẾP THEO" : "MỜI QUAY THỬ";
             }
 
             document.getElementById('historyList').innerHTML = historyData.map(h => 
@@ -216,11 +220,8 @@
         }
 
         function spin() {
-            if (isSpinning || selectedPrize === null) return;
+            if (isSpinning) return;
             
-            const wonCodes = historyData.map(h => h.code);
-            const availablePool = fullPool.filter(code => !wonCodes.includes(code));
-
             isSpinning = true;
             document.getElementById('spinBtn').disabled = true;
             document.getElementById('status').innerText = "ĐANG QUAY...";
@@ -230,11 +231,20 @@
 
             setTimeout(() => {
                 let result;
-                if (selectedPrize === 0 && isRigged) {
-                    const availRigged = specialRiggedPool.filter(c => !wonCodes.includes(c));
-                    result = availRigged.length > 0 ? availRigged[Math.floor(Math.random() * availRigged.length)] : availablePool[Math.floor(Math.random() * availablePool.length)];
+                const wonCodes = historyData.map(h => h.code);
+                const availablePool = fullPool.filter(code => !wonCodes.includes(code));
+
+                if (selectedPrize !== null) {
+                    // Quay thật
+                    if (selectedPrize === 0 && isRigged) {
+                        const availRigged = specialRiggedPool.filter(c => !wonCodes.includes(c));
+                        result = availRigged.length > 0 ? availRigged[Math.floor(Math.random() * availRigged.length)] : availablePool[Math.floor(Math.random() * availablePool.length)];
+                    } else {
+                        result = availablePool[Math.floor(Math.random() * availablePool.length)];
+                    }
                 } else {
-                    result = availablePool[Math.floor(Math.random() * availablePool.length)];
+                    // Quay thử ngẫu nhiên hoàn toàn
+                    result = Math.floor(Math.random() * 90000 + 10000).toString();
                 }
 
                 const finalCode = result.padStart(5, '0');
@@ -245,18 +255,28 @@
                 });
 
                 setTimeout(() => {
-                    confetti({ particleCount: 150, spread: 70, colors: ['#e31a22', '#ffed00'] });
-                    const names = { 3: "Giải Ba", 2: "Giải Nhì", 1: "Giải Nhất", 0: "Giải Đặc Biệt" };
-                    
-                    historyData.unshift({ code: result, name: names[selectedPrize] });
-                    counters[selectedPrize]++;
-                    
-                    db.ref('luckyroll_final_v4').update({ history: historyData, counters: counters });
+                    if (selectedPrize !== null) {
+                        confetti({ particleCount: 150, spread: 70, colors: ['#e31a22', '#ffed00'] });
+                        const names = { 3: "Giải Ba", 2: "Giải Nhì", 1: "Giải Nhất", 0: "Giải Đặc Biệt" };
+                        
+                        historyData.unshift({ code: result, name: names[selectedPrize] });
+                        counters[selectedPrize]++;
+                        
+                        db.ref('luckyroll_final_v5').update({ history: historyData, counters: counters });
+                        
+                        document.getElementById('status').innerText = "CHÚC MỪNG " + names[selectedPrize].toUpperCase() + "!";
+                        
+                        // Nếu đã quay đủ số lượng của giải đó thì reset lựa chọn để về mode quay thử
+                        if(counters[selectedPrize] >= limits[selectedPrize]) {
+                            selectedPrize = null;
+                            document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
+                        }
+                    } else {
+                        document.getElementById('status').innerText = "KẾT QUẢ QUAY THỬ: VJC " + finalCode;
+                    }
                     
                     isSpinning = false;
-                    selectedPrize = null;
-                    document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
-                    document.getElementById('spinBtn').innerText = "CHỌN GIẢI TIẾP THEO";
+                    document.getElementById('spinBtn').disabled = false;
                     updateUI();
                 }, 4500);
             }, 50);
@@ -269,17 +289,13 @@
         }
         function executeReset() {
             if (document.getElementById('reset-pass').value === "vjc2026") {
-                db.ref('luckyroll_final_v4').remove().then(() => location.reload());
+                db.ref('luckyroll_final_v5').remove().then(() => location.reload());
             } else alert("Mật khẩu admin sai!");
         }
 
-        // Bật mode trước khi bắt đầu. Khi đã chọn giải hoặc có lịch sử, không đổi mode được nữa.
         window.addEventListener('keydown', e => { 
             if (e.key === "Control") {
-                if (isStarted) {
-                    console.log("Hệ thống đã bắt đầu, không thể đổi mode!");
-                    return;
-                }
+                if (isStarted) return;
                 isRigged = !isRigged; 
                 updateUI(); 
             } 
