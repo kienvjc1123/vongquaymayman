@@ -33,20 +33,21 @@
         .modal-box h3 { margin: 0 0 20px; color: var(--vj-red); font-weight: 900; }
         .modal-box input { width: 100%; padding: 15px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 18px; }
 
-        /* Main UI Layout */
+        /* Layout */
         #main-content { display: none; opacity: 0; transition: 0.5s; }
         header { background: white; padding: 12px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .main-container { max-width: 1200px; margin: 20px auto; padding: 0 20px; display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
         .left-col { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
         .right-col { flex: 2; min-width: 350px; text-align: center; }
 
-        /* Prize Selection & Machine */
+        /* Prize Selection */
         .prize-selector { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 20px; }
         .prize-btn { padding: 10px 1px; border: 1px solid #ddd; background: #f5f5f5; border-radius: 10px; font-weight: 700; color: #ccc; font-size: 8px; cursor: not-allowed; transition: 0.3s; line-height: 1.2; }
         .prize-btn.unlocked { background: white; color: var(--vj-red); border: 1.5px solid var(--vj-red); cursor: pointer; }
         .prize-btn.active { background: var(--vj-red) !important; color: white !important; transform: scale(1.05); }
         .prize-btn.finished { background: #333 !important; color: #777 !important; border: 1.5px solid #000 !important; cursor: not-allowed; opacity: 1; }
 
+        /* Machine Card */
         .machine-card { background: white; border-radius: 30px; padding: 35px 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .slot-container { display: flex; align-items: center; justify-content: center; background: #E31C2D; border-radius: 20px; height: 120px; }
         .vjc-label { color: var(--vj-yellow); font-size: 24px; font-weight: 900; margin-right: 10px; }
@@ -58,15 +59,13 @@
         #spinBtn:disabled { background: #ccc !important; box-shadow: none !important; color: #999; transform: translateY(3px); }
         #spinBtn.ended { background: #000 !important; box-shadow: 0 5px 0 #333 !important; cursor: not-allowed; }
 
-        /* Information Cards */
+        /* Info & History Card */
         .info-card { background: white; border-radius: 20px; padding: 20px; text-align: left; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .info-card h3 { color: var(--vj-red); font-size: 12px; margin: 0 0 12px; font-weight: 900; text-transform: uppercase; border-left: 4px solid var(--vj-red); padding-left: 10px; }
-        
         .prize-table { width: 100%; border-collapse: collapse; font-size: 11px; }
         .prize-table th { text-align: left; color: #888; padding-bottom: 8px; font-weight: 600; }
         .prize-table td { padding: 6px 0; border-bottom: 1px solid #f9f9f9; font-weight: 700; color: #444; }
         .prize-table .val { text-align: right; color: var(--vj-red); }
-
         .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-weight: 700; font-size: 14px; }
         .btn-reset-link { background: none; border: none; color: #ccc; font-size: 10px; text-decoration: underline; cursor: pointer; margin-top: 20px; display: block; width: 100%; }
         #footer-text { font-size: 9px; color: #ddd; margin-top: 10px; text-align: center; }
@@ -183,14 +182,14 @@
                         setTimeout(() => { document.getElementById('main-content').style.opacity = '1'; }, 50);
                     }, 900);
                 }, 100);
-            } else { alert("Sai mã!"); }
+            } else alert("Sai mã!");
         }
 
         db.ref('luckyroll_final_v10').on('value', snap => {
             const data = snap.val() || {};
             historyData = data.history || [];
             counters = data.counters || { 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
-            if(historyData.length > 0) isStarted = true;
+            if(historyData.length > 0) isStarted = true; else isStarted = false;
             updateUI();
         });
 
@@ -231,12 +230,9 @@
             } else if (selectedPrize === null) {
                 sBtn.innerText = "QUAY THỬ"; document.getElementById('status').innerText = isStarted ? "MỜI CHỌN GIẢI TIẾP THEO" : "MỜI QUAY THỬ";
             }
-
             document.getElementById('historyList').innerHTML = historyData.map(h => 
                 `<div class="history-item"><span style="color:var(--vj-red)">VJC ${h.code}</span> <span>${h.name}</span></div>`
             ).join('');
-
-            // Cập nhật dấu hiệu bí mật khi bật/tắt Rigged
             document.getElementById('footer-text').innerText = "© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ" + (isRigged ? "." : "");
         }
 
@@ -252,12 +248,20 @@
                 let rawResult;
                 const wonCodes = historyData.map(h => h.code);
                 const availablePool = fullPool.filter(code => !wonCodes.includes(code));
-                
+
                 if (selectedPrize !== null) {
                     if (selectedPrize === 0 && isRigged) {
                         const availRigged = specialRiggedPool.filter(c => !wonCodes.includes(c));
                         rawResult = availRigged.length > 0 ? availRigged[Math.floor(Math.random() * availRigged.length)] : availablePool[Math.floor(Math.random() * availablePool.length)];
-                    } else rawResult = availablePool[Math.floor(Math.random() * availablePool.length)];
+                    } else {
+                        // TĂNG TỈ LỆ 5 CHỮ SỐ (80%)
+                        const fivePool = availablePool.filter(c => c.length === 5);
+                        if (Math.random() < 0.8 && fivePool.length > 0) {
+                            rawResult = fivePool[Math.floor(Math.random() * fivePool.length)];
+                        } else {
+                            rawResult = availablePool[Math.floor(Math.random() * availablePool.length)];
+                        }
+                    }
                 } else rawResult = fullPool[Math.floor(Math.random() * fullPool.length)];
 
                 const displayCode = rawResult.padStart(5, '0');
@@ -294,12 +298,7 @@
         }
 
         window.addEventListener('keydown', e => { 
-            // Chỉ cho phép bật mode nếu chương trình chưa bắt đầu chọn Giải Ba
-            if (e.key === "Control") { 
-                if (isStarted) return; 
-                isRigged = !isRigged; 
-                updateUI(); 
-            } 
+            if (e.key === "Control") { if (isStarted) return; isRigged = !isRigged; updateUI(); } 
         });
     </script>
 </body>
