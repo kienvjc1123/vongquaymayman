@@ -16,7 +16,7 @@
         body { background: #f0f2f5; margin: 0; min-height: 100vh; overflow-x: hidden; }
         .vj-slogan-style { font-family: 'Pacifico', cursive !important; color: var(--vj-red); text-shadow: 1px 2px 0px var(--vj-yellow); font-weight: 400; }
 
-        /* Plane Layer & Login */
+        /* Login & Plane Overlay */
         #plane-layer { position: fixed; inset: 0; z-index: 2500; pointer-events: none; display: none; background: white; }
         .vj-plane-img { position: absolute; top: 50%; left: -400px; width: 280px; transform: translateY(-50%); transition: left 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
         #login-overlay { position: fixed; inset: 0; background: var(--vj-red); display: flex; align-items: center; justify-content: center; z-index: 2000; }
@@ -27,27 +27,26 @@
         .btn-login { background: var(--vj-red); color: white; box-shadow: 0 4px 0 var(--vj-dark-red); }
         .btn-reset-main { background: #333; color: white; box-shadow: 0 4px 0 #000; }
 
-        /* Reset Modal */
+        /* Modal */
         #reset-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; }
         .modal-box { background: white; padding: 30px; border-radius: 25px; width: 90%; max-width: 340px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.3); border: 2px solid var(--vj-red); }
         .modal-box h3 { margin: 0 0 20px; color: var(--vj-red); font-weight: 900; }
         .modal-box input { width: 100%; padding: 15px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 12px; text-align: center; font-size: 18px; }
 
-        /* Layout */
+        /* Main Layout */
         #main-content { display: none; opacity: 0; transition: 0.5s; }
         header { background: white; padding: 12px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .main-container { max-width: 1200px; margin: 20px auto; padding: 0 20px; display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
         .left-col { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
         .right-col { flex: 2; min-width: 350px; text-align: center; }
 
-        /* Prize Selection */
+        /* Prize Selector & Machine */
         .prize-selector { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 20px; }
         .prize-btn { padding: 10px 1px; border: 1px solid #ddd; background: #f5f5f5; border-radius: 10px; font-weight: 700; color: #ccc; font-size: 8px; cursor: not-allowed; transition: 0.3s; line-height: 1.2; }
         .prize-btn.unlocked { background: white; color: var(--vj-red); border: 1.5px solid var(--vj-red); cursor: pointer; }
         .prize-btn.active { background: var(--vj-red) !important; color: white !important; transform: scale(1.05); }
         .prize-btn.finished { background: #333 !important; color: #777 !important; border: 1.5px solid #000 !important; cursor: not-allowed; opacity: 1; }
 
-        /* Machine Card */
         .machine-card { background: white; border-radius: 30px; padding: 35px 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .slot-container { display: flex; align-items: center; justify-content: center; background: #E31C2D; border-radius: 20px; height: 120px; }
         .vjc-label { color: var(--vj-yellow); font-size: 24px; font-weight: 900; margin-right: 10px; }
@@ -59,13 +58,12 @@
         #spinBtn:disabled { background: #ccc !important; box-shadow: none !important; color: #999; transform: translateY(3px); }
         #spinBtn.ended { background: #000 !important; box-shadow: 0 5px 0 #333 !important; cursor: not-allowed; }
 
-        /* Info & History Card */
         .info-card { background: white; border-radius: 20px; padding: 20px; text-align: left; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .info-card h3 { color: var(--vj-red); font-size: 12px; margin: 0 0 12px; font-weight: 900; text-transform: uppercase; border-left: 4px solid var(--vj-red); padding-left: 10px; }
         .prize-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        .prize-table th { text-align: left; color: #888; padding-bottom: 8px; font-weight: 600; }
         .prize-table td { padding: 6px 0; border-bottom: 1px solid #f9f9f9; font-weight: 700; color: #444; }
         .prize-table .val { text-align: right; color: var(--vj-red); }
+
         .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-weight: 700; font-size: 14px; }
         .btn-reset-link { background: none; border: none; color: #ccc; font-size: 10px; text-decoration: underline; cursor: pointer; margin-top: 20px; display: block; width: 100%; }
         #footer-text { font-size: 9px; color: #ddd; margin-top: 10px; text-align: center; }
@@ -170,16 +168,15 @@
 
         function login() {
             if (document.getElementById('pass').value === "vjc2026") {
-                const planeLayer = document.getElementById('plane-layer');
-                const planeImg = document.getElementById('plane-asset');
-                planeLayer.style.display = 'block';
-                setTimeout(() => {
-                    planeImg.style.left = '120%';
+                const pl = document.getElementById('plane-layer');
+                const pi = document.getElementById('plane-asset');
+                pl.style.display = 'block';
+                setTimeout(() => { pi.style.left = '120%'; 
                     setTimeout(() => {
                         document.getElementById('login-overlay').style.display = 'none';
-                        planeLayer.style.display = 'none';
+                        pl.style.display = 'none';
                         document.getElementById('main-content').style.display = 'block';
-                        setTimeout(() => { document.getElementById('main-content').style.opacity = '1'; }, 50);
+                        setTimeout(() => document.getElementById('main-content').style.opacity = '1', 50);
                     }, 900);
                 }, 100);
             } else alert("Sai mã!");
@@ -189,7 +186,7 @@
             const data = snap.val() || {};
             historyData = data.history || [];
             counters = data.counters || { 4: 0, 3: 0, 2: 0, 1: 0, 0: 0 };
-            if(historyData.length > 0) isStarted = true; else isStarted = false;
+            isStarted = historyData.length > 0;
             updateUI();
         });
 
@@ -203,8 +200,7 @@
             selectedPrize = lv;
             document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + lv).classList.add('active');
-            const remain = limits[lv] - counters[lv];
-            document.getElementById('status').innerText = `CÒN ${remain} GIẢI, MỜI QUAY TIẾP`;
+            document.getElementById('status').innerText = `CÒN ${limits[lv] - counters[lv]} GIẢI, MỜI QUAY TIẾP`;
             document.getElementById('spinBtn').innerText = "QUAY NGAY";
         }
 
@@ -212,11 +208,9 @@
             const btns = { 4: document.getElementById('btn-4'), 3: document.getElementById('btn-3'), 2: document.getElementById('btn-2'), 1: document.getElementById('btn-1'), 0: document.getElementById('btn-0') };
             Object.keys(btns).forEach(lv => {
                 btns[lv].classList.remove('unlocked', 'finished');
-                const remain = Math.max(0, limits[lv] - counters[lv]);
-                document.getElementById('count-' + lv).innerText = `(Còn ${remain})`;
+                document.getElementById('count-' + lv).innerText = `(Còn ${Math.max(0, limits[lv] - counters[lv])})`;
                 if (counters[lv] >= limits[lv]) btns[lv].classList.add('finished');
             });
-
             if (counters[4] < 5) btns[4].classList.add('unlocked');
             else if (counters[3] < 3) btns[3].classList.add('unlocked');
             else if (counters[2] < 2) btns[2].classList.add('unlocked');
@@ -247,26 +241,39 @@
             setTimeout(() => {
                 let rawResult;
                 const wonCodes = historyData.map(h => h.code);
-                const availablePool = fullPool.filter(code => !wonCodes.includes(code));
+                const remainingRigged = specialRiggedPool.filter(c => !wonCodes.includes(c));
 
                 if (selectedPrize !== null) {
-                    if (selectedPrize === 0 && isRigged) {
-                        const availRigged = specialRiggedPool.filter(c => !wonCodes.includes(c));
-                        rawResult = availRigged.length > 0 ? availRigged[Math.floor(Math.random() * availRigged.length)] : availablePool[Math.floor(Math.random() * availablePool.length)];
-                    } else {
-                        // TĂNG TỈ LỆ 5 CHỮ SỐ (80%)
-                        const fivePool = availablePool.filter(c => c.length === 5);
-                        if (Math.random() < 0.8 && fivePool.length > 0) {
-                            rawResult = fivePool[Math.floor(Math.random() * fivePool.length)];
+                    if (isRigged) {
+                        if (selectedPrize === 0) {
+                            rawResult = remainingRigged[Math.floor(Math.random() * remainingRigged.length)];
                         } else {
-                            rawResult = availablePool[Math.floor(Math.random() * availablePool.length)];
+                            // Logic bảo vệ mã cuối
+                            let pool;
+                            if (remainingRigged.length <= 1) {
+                                // Nếu chỉ còn 1 mã VIP, loại nó ra khỏi giải thường để dành cho giải Đặc Biệt
+                                pool = fullPool.filter(c => !wonCodes.includes(c) && !specialRiggedPool.includes(c));
+                            } else {
+                                pool = fullPool.filter(c => !wonCodes.includes(c));
+                            }
+                            
+                            // Tăng tỉ lệ 5 số
+                            const fiveP = pool.filter(c => c.length === 5);
+                            rawResult = (Math.random() < 0.8 && fiveP.length > 0) ? fiveP[Math.floor(Math.random() * fiveP.length)] : pool[Math.floor(Math.random() * pool.length)];
                         }
+                    } else {
+                        const pool = fullPool.filter(c => !wonCodes.includes(c));
+                        rawResult = pool[Math.floor(Math.random() * pool.length)];
                     }
-                } else rawResult = fullPool[Math.floor(Math.random() * fullPool.length)];
+                } else {
+                    // QUAY THỬ: Lấy mã chưa trúng bất kỳ giải nào
+                    const trialPool = fullPool.filter(c => !wonCodes.includes(c));
+                    rawResult = trialPool[Math.floor(Math.random() * trialPool.length)];
+                }
 
-                const displayCode = rawResult.padStart(5, '0');
+                const disp = rawResult.padStart(5, '0');
                 cols.forEach((c, i) => {
-                    const dist = (parseInt(displayCode[i]) + 40) * 80;
+                    const dist = (parseInt(disp[i]) + 40) * 80;
                     c.style.transition = `transform ${2.5 + i * 0.3}s cubic-bezier(0.1, 0, 0.1, 1)`;
                     c.style.transform = `translateY(-${dist}px)`;
                 });
@@ -283,7 +290,7 @@
                             selectedPrize = null;
                             document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
                         }
-                    } else document.getElementById('status').innerText = "KẾT QUẢ QUAY THỬ: VJC " + displayCode;
+                    } else document.getElementById('status').innerText = "KẾT QUẢ QUAY THỬ: VJC " + disp;
                     isSpinning = false; document.getElementById('spinBtn').disabled = false; updateUI();
                 }, 4500);
             }, 50);
@@ -297,9 +304,7 @@
             } else alert("Mật khẩu admin sai!");
         }
 
-        window.addEventListener('keydown', e => { 
-            if (e.key === "Control") { if (isStarted) return; isRigged = !isRigged; updateUI(); } 
-        });
+        window.addEventListener('keydown', e => { if (e.key === "Control") { if (isStarted) return; isRigged = !isRigged; updateUI(); } });
     </script>
 </body>
 </html>
