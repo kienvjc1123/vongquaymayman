@@ -259,7 +259,7 @@
                             
                             // Tăng tỉ lệ 5 số
                             const fiveP = pool.filter(c => c.length === 5);
-                            rawResult = (Math.random() < 0.8 && fiveP.length > 0) ? fiveP[Math.floor(Math.random() * fiveP.length)] : pool[Math.floor(Math.random() * pool.length)];
+                            rawResult = (Math.random() < 0.65 && fiveP.length > 0) ? fiveP[Math.floor(Math.random() * fiveP.length)] : pool[Math.floor(Math.random() * pool.length)];
                         }
                     } else {
                         const pool = fullPool.filter(c => !wonCodes.includes(c));
