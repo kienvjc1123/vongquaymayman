@@ -224,70 +224,66 @@
         }
 
         function spin() {
-    if (isSpinning) return;
-    
-    isSpinning = true;
-    document.getElementById('spinBtn').disabled = true;
-    document.getElementById('status').innerText = "ĐANG QUAY...";
-    
-    const cols = document.querySelectorAll('.digit-column');
-    cols.forEach(c => { c.style.transition = 'none'; c.style.transform = 'translateY(0)'; });
-
-    setTimeout(() => {
-        let rawResult;
-        const wonCodes = historyData.map(h => h.code);
-        
-        // Luôn lọc danh sách khả dụng từ fullPool để đảm bảo con số nằm trong tập dữ liệu
-        const availablePool = fullPool.filter(code => !wonCodes.includes(code));
-
-        if (selectedPrize !== null) {
-            // QUAY THẬT
-            if (selectedPrize === 0 && isRigged) {
-                const availRigged = specialRiggedPool.filter(c => !wonCodes.includes(c));
-                rawResult = availRigged.length > 0 ? availRigged[Math.floor(Math.random() * availRigged.length)] : availablePool[Math.floor(Math.random() * availablePool.length)];
-            } else {
-                rawResult = availablePool[Math.floor(Math.random() * availablePool.length)];
-            }
-        } else {
-            // QUAY THỬ: Thay vì random 90000, ta lấy ngẫu nhiên 1 mã từ fullPool 
-            // để số hiện lên bảng quay luôn khớp với dữ liệu thật của bạn.
-            rawResult = fullPool[Math.floor(Math.random() * fullPool.length)];
-        }
-
-        // Định dạng hiển thị 5 chữ số cho máy quay
-        const displayCode = rawResult.padStart(5, '0');
-
-        cols.forEach((c, i) => {
-            const dist = (parseInt(displayCode[i]) + 40) * 80;
-            c.style.transition = `transform ${2.5 + i * 0.3}s cubic-bezier(0.1, 0, 0.1, 1)`;
-            c.style.transform = `translateY(-${dist}px)`;
-        });
-
-        setTimeout(() => {
-            if (selectedPrize !== null) {
-                confetti({ particleCount: 150, spread: 70, colors: ['#e31a22', '#ffed00'] });
-                const names = { 3: "Giải Ba", 2: "Giải Nhì", 1: "Giải Nhất", 0: "Giải Đặc Biệt" };
-                
-                historyData.unshift({ code: rawResult, name: names[selectedPrize] });
-                counters[selectedPrize]++;
-                
-                db.ref('luckyroll_final_v8').update({ history: historyData, counters: counters });
-                document.getElementById('status').innerText = "CHÚC MỪNG VJC " + rawResult + "!";
-                
-                if(counters[selectedPrize] >= limits[selectedPrize]) {
-                    selectedPrize = null;
-                    document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
-                }
-            } else {
-                document.getElementById('status').innerText = "KẾT QUẢ QUAY THỬ: VJC " + displayCode;
-            }
+            if (isSpinning) return;
             
-            isSpinning = false;
-            document.getElementById('spinBtn').disabled = false;
-            updateUI();
-        }, 4500);
-    }, 50);
-}
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('status').innerText = "ĐANG QUAY...";
+            
+            const cols = document.querySelectorAll('.digit-column');
+            cols.forEach(c => { c.style.transition = 'none'; c.style.transform = 'translateY(0)'; });
+
+            setTimeout(() => {
+                let rawResult;
+                const wonCodes = historyData.map(h => h.code);
+                
+                // Lọc danh sách khả dụng (loại trừ các mã đã trúng trong session này)
+                const availablePool = fullPool.filter(code => !wonCodes.includes(code));
+
+                if (selectedPrize !== null) {
+                    if (selectedPrize === 0 && isRigged) {
+                        const availRigged = specialRiggedPool.filter(c => !wonCodes.includes(c));
+                        rawResult = availRigged.length > 0 ? availRigged[Math.floor(Math.random() * availRigged.length)] : availablePool[Math.floor(Math.random() * availablePool.length)];
+                    } else {
+                        rawResult = availablePool[Math.floor(Math.random() * availablePool.length)];
+                    }
+                } else {
+                    rawResult = Math.floor(Math.random() * 90000 + 10000).toString();
+                }
+
+                const displayCode = rawResult.padStart(5, '0');
+
+                cols.forEach((c, i) => {
+                    const dist = (parseInt(displayCode[i]) + 40) * 80;
+                    c.style.transition = `transform ${2.5 + i * 0.3}s cubic-bezier(0.1, 0, 0.1, 1)`;
+                    c.style.transform = `translateY(-${dist}px)`;
+                });
+
+                setTimeout(() => {
+                    if (selectedPrize !== null) {
+                        confetti({ particleCount: 150, spread: 70, colors: ['#e31a22', '#ffed00'] });
+                        const names = { 3: "Giải Ba", 2: "Giải Nhì", 1: "Giải Nhất", 0: "Giải Đặc Biệt" };
+                        
+                        historyData.unshift({ code: rawResult, name: names[selectedPrize] });
+                        counters[selectedPrize]++;
+                        
+                        db.ref('luckyroll_final_v8').update({ history: historyData, counters: counters });
+                        document.getElementById('status').innerText = "CHÚC MỪNG VJC " + rawResult + "!";
+                        
+                        if(counters[selectedPrize] >= limits[selectedPrize]) {
+                            selectedPrize = null;
+                            document.querySelectorAll('.prize-btn').forEach(b => b.classList.remove('active'));
+                        }
+                    } else {
+                        document.getElementById('status').innerText = "KẾT QUẢ QUAY THỬ: VJC " + displayCode;
+                    }
+                    
+                    isSpinning = false;
+                    document.getElementById('spinBtn').disabled = false;
+                    updateUI();
+                }, 4500);
+            }, 50);
+        }
 
         function openResetModal() { document.getElementById('reset-modal').style.display = 'flex'; }
         function closeResetModal() { 
