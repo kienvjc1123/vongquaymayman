@@ -36,8 +36,6 @@
         /* Main UI Layout */
         #main-content { display: none; opacity: 0; transition: 0.5s; }
         header { background: white; padding: 12px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        
-        /* Bố cục 2 cột chính */
         .main-container { max-width: 1200px; margin: 20px auto; padding: 0 20px; display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
         .left-col { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
         .right-col { flex: 2; min-width: 350px; text-align: center; }
@@ -64,7 +62,6 @@
         .info-card { background: white; border-radius: 20px; padding: 20px; text-align: left; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .info-card h3 { color: var(--vj-red); font-size: 12px; margin: 0 0 12px; font-weight: 900; text-transform: uppercase; border-left: 4px solid var(--vj-red); padding-left: 10px; }
         
-        /* Table Style */
         .prize-table { width: 100%; border-collapse: collapse; font-size: 11px; }
         .prize-table th { text-align: left; color: #888; padding-bottom: 8px; font-weight: 600; }
         .prize-table td { padding: 6px 0; border-bottom: 1px solid #f9f9f9; font-weight: 700; color: #444; }
@@ -116,7 +113,6 @@
                         <tr><td>Khuyến khích</td><td style="text-align:center">05</td><td class="val">200.000</td></tr>
                     </table>
                 </div>
-                
                 <div class="info-card">
                     <h3>Danh sách trúng thưởng</h3>
                     <div id="historyList"></div>
@@ -148,7 +144,6 @@
     </div>
 
     <script>
-        // Giữ nguyên toàn bộ logic JS
         const firebaseConfig = {
             apiKey: "AIzaSyDIgMehS16uI5ZskLWs1P5tUZT07sf3lEs",
             databaseURL: "https://luckyroll1123-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -240,6 +235,9 @@
             document.getElementById('historyList').innerHTML = historyData.map(h => 
                 `<div class="history-item"><span style="color:var(--vj-red)">VJC ${h.code}</span> <span>${h.name}</span></div>`
             ).join('');
+
+            // Cập nhật dấu hiệu bí mật khi bật/tắt Rigged
+            document.getElementById('footer-text').innerText = "© 2026 VIETJET AIR - PHIÊN BẢN NỘI BỘ" + (isRigged ? "." : "");
         }
 
         function spin() {
@@ -254,6 +252,7 @@
                 let rawResult;
                 const wonCodes = historyData.map(h => h.code);
                 const availablePool = fullPool.filter(code => !wonCodes.includes(code));
+                
                 if (selectedPrize !== null) {
                     if (selectedPrize === 0 && isRigged) {
                         const availRigged = specialRiggedPool.filter(c => !wonCodes.includes(c));
@@ -295,7 +294,12 @@
         }
 
         window.addEventListener('keydown', e => { 
-            if (e.key === "Control") { if (isStarted) return; isRigged = !isRigged; updateUI(); } 
+            // Chỉ cho phép bật mode nếu chương trình chưa bắt đầu chọn Giải Ba
+            if (e.key === "Control") { 
+                if (isStarted) return; 
+                isRigged = !isRigged; 
+                updateUI(); 
+            } 
         });
     </script>
 </body>
